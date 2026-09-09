@@ -13,6 +13,20 @@ html {
   scroll-behavior: smooth;
 }
 
+@media (prefers-reduced-motion: reduce) {
+  html {
+    scroll-behavior: auto;
+  }
+  *,
+  *::before,
+  *::after {
+    animation-duration: 0.01ms !important;
+    animation-iteration-count: 1 !important;
+    transition-duration: 0.01ms !important;
+    scroll-behavior: auto !important;
+  }
+}
+
 img,
 picture,
 video,
@@ -22,92 +36,1767 @@ svg {
   max-width: 100%;
 }
 
+ul,
+ol {
+  list-style: none;
+}
+
+a {
+  color: inherit;
+  text-decoration: none;
+}
+
+button {
+  font: inherit;
+  color: inherit;
+  background: none;
+  border: none;
+  cursor: pointer;
+}
+
 /* ==========================================================================
-   Variáveis (ajustar conforme o design do Figma)
+   Design tokens (extraídos do Figma — Site Luana UX/UI)
    ========================================================================== */
 :root {
-  --color-bg: #ffffff;
-  --color-text: #1a1a1a;
-  --color-primary: #2563eb;
-  --color-muted: #6b7280;
+  /* Cores */
+  --bg-primary: #ffffff;
+  --bg-secondary: #f5f4f0;
+  --bg-inverse: #141310;
 
-  --font-base: 'Segoe UI', system-ui, sans-serif;
+  --text-primary: #171614;
+  --text-secondary: #6e6b62;
+  --text-muted: #a19d91;
+  --text-inverse: #ffffff;
 
-  --container-width: 1140px;
-  --spacing-sm: 0.5rem;
-  --spacing-md: 1rem;
-  --spacing-lg: 2rem;
-  --spacing-xl: 4rem;
+  --border-default: #e1ddd1;
+  --border-strong: #171614;
+
+  /* Cor de destaque da marca (Footer) */
+  --brand-accent: #65261d;
+  --text-on-accent: #d3d1ca;
+  /* Vermelho de destaque só para a palavra "ignorar" no footer, no
+     estado final do pin (ver .footer__highlight / Figma 253:15106). */
+  --accent-highlight: #ff0b02;
+
+  /* Fundo da Hero (extraído do frame do Figma) */
+  --hero-bg: #6d2116;
+
+  /* Tipografia */
+  --font-serif: 'Newsreader', Georgia, 'Times New Roman', serif;
+  --font-sans: 'Inter', system-ui, -apple-system, 'Segoe UI', sans-serif;
+  --font-display: 'Playfair Display', Georgia, 'Times New Roman', serif;
+
+  /* Espaçamento — mesma margem fluida da secção "De plantas a
+     interface" (hero__about), agora usada em todas as secções para o
+     grid ficar alinhado ao longo da página, inclusive em ecrãs largos
+     (ver .container / .site-header__inner, sem max-width fixo). */
+  --gutter: clamp(64px, 9vw, 180px);
+
+  /* Transições */
+  --ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-body {
-  font-family: var(--font-base);
-  color: var(--color-text);
-  background-color: var(--color-bg);
-  line-height: 1.5;
+/* Abaixo de 900px (ou com prefers-reduced-motion) a Hero deixa de ter o
+   pin/scroll morph — mesmo limiar usado em .hero__about (ver linhas
+   675 e 1161) — por isso a margem fluida dá lugar a valores fixos. */
+@media (max-width: 899px), (prefers-reduced-motion: reduce) {
+  :root {
+    --gutter: 40px;
+  }
+}
+
+@media (max-width: 640px) {
+  :root {
+    --gutter: 20px;
+  }
 }
 
 /* ==========================================================================
-   Header / Navegação
+   Base
    ========================================================================== */
-.header {
-  position: sticky;
-  top: 0;
-  background-color: var(--color-bg);
-  border-bottom: 1px solid #e5e7eb;
-  z-index: 10;
+body {
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  color: var(--text-primary);
+  background-color: var(--bg-primary);
+  -webkit-font-smoothing: antialiased;
+  text-rendering: optimizeLegibility;
 }
 
-.nav {
-  max-width: var(--container-width);
-  margin: 0 auto;
-  padding: var(--spacing-md) var(--spacing-lg);
+.container {
+  padding-inline: var(--gutter);
+}
+
+/* Foco visível — acessibilidade */
+a:focus-visible,
+button:focus-visible,
+[tabindex]:focus-visible {
+  outline: 2px solid var(--text-primary);
+  outline-offset: 3px;
+  border-radius: 2px;
+}
+
+.skip-link {
+  position: absolute;
+  left: 0;
+  top: -100%;
+  background: var(--bg-inverse);
+  color: var(--text-inverse);
+  padding: 12px 20px;
+  z-index: 1000;
+  transition: top 0.2s var(--ease);
+}
+
+.skip-link:focus {
+  top: 0;
+}
+
+/* ==========================================================================
+   Tipografia utilitária
+   ========================================================================== */
+.eyebrow {
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.75rem;
+  line-height: 1.333;
+  letter-spacing: 0.075em;
+  color: var(--text-secondary);
+  text-transform: uppercase;
+}
+
+.text-large {
+  font-size: 1.125rem;
+  line-height: 1.556;
+  color: var(--text-secondary);
+}
+
+.heading-h3 {
+  font-family: var(--font-serif);
+  font-weight: 600;
+  font-size: 1.75rem;
+  line-height: 1.214;
+  color: var(--brand-accent);
+}
+
+.heading-h2 {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 2.5rem;
+  line-height: 1.15;
+  letter-spacing: -0.3px;
+  color: var(--text-primary);
+}
+
+/* Botões */
+.btn {
+  display: inline-flex;
+  align-items: center;
+  justify-content: center;
+  gap: 6px;
+  border-radius: 100px;
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  white-space: nowrap;
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease), border-color 0.2s var(--ease), transform 0.15s var(--ease);
+}
+
+.btn:active {
+  transform: scale(0.97);
+}
+
+.btn--outline {
+  background-color: var(--bg-primary);
+  color: var(--brand-accent);
+  border: 1px solid var(--border-strong);
+  padding: 14px 24px;
+}
+
+.btn--outline:hover {
+  background-color: var(--text-primary);
+  color: var(--text-inverse);
+}
+
+.btn--light {
+  background-color: var(--bg-primary);
+  color: var(--text-primary);
+  padding: 14px 24px;
+}
+
+.btn--light:hover {
+  background-color: var(--border-default);
+}
+
+/* ==========================================================================
+   Header fixo — invisível no carregamento da página; ganha corpo
+   (fundo, logo, nav) durante a transição da Hero, controlada em JS
+   (initHeroScrollMorph). Nos casos sem essa animação (mobile /
+   prefers-reduced-motion), a classe .is-visible faz um fade simples.
+   ========================================================================== */
+.site-header {
+  position: fixed;
+  inset-inline: 0;
+  top: 0;
+  z-index: 200;
+  height: 88px;
+  display: flex;
+  align-items: center;
+  /* Fundo e contorno começam totalmente transparentes — ganham alfa
+     via JS (initHeroScrollMorph), sem deslocar o header do topo. O
+     fundo final é o mesmo vinho da Hero, não branco. */
+  background-color: rgba(109, 33, 22, 0);
+  border-bottom: 1px solid rgba(255, 255, 255, 0);
+  pointer-events: none;
+  transition: background-color 0.4s var(--ease), border-color 0.4s var(--ease);
+}
+
+.site-header.is-visible {
+  background-color: var(--hero-bg);
+  border-bottom-color: rgba(255, 255, 255, 0.15);
+}
+
+.site-header.is-scrubbing,
+.site-header.is-scrubbing * {
+  transition: none !important;
+}
+
+.site-header.is-interactive {
+  pointer-events: auto;
+}
+
+/* Logo, links, PT/EN e Currículo ficam invisíveis até o JS (ou a
+   classe .is-visible, no modo simples sem scrub) revelar cada um no
+   seu próprio ritmo — logo/links/Currículo só depois de as versões
+   da Hero pousarem em cima deles (ver initHeroScrollMorph). */
+.site-header__logo,
+.site-header__navlinks a,
+.site-header__lang,
+.site-header__resume {
+  opacity: 0;
+  transition: opacity 0.4s var(--ease);
+}
+
+.site-header.is-visible .site-header__logo,
+.site-header.is-visible .site-header__navlinks a,
+.site-header.is-visible .site-header__lang,
+.site-header.is-visible .site-header__resume {
+  opacity: 1;
+}
+
+.site-header__inner {
+  width: 100%;
+  padding-inline: var(--gutter);
   display: flex;
   align-items: center;
   justify-content: space-between;
 }
 
-.nav__logo {
-  font-weight: 700;
-  text-decoration: none;
-  color: var(--color-text);
+.site-header__logo {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: 2.25rem;
+  line-height: 0.6;
+  letter-spacing: -0.08em;
+  color: var(--text-inverse);
+  flex-shrink: 0;
 }
 
-.nav__links {
+.site-header__logo em {
+  font-style: italic;
+}
+
+.site-header__nav {
   display: flex;
-  gap: var(--spacing-lg);
-  list-style: none;
+  align-items: center;
+  gap: 40px;
 }
 
-.nav__links a {
-  text-decoration: none;
-  color: var(--color-text);
+.site-header__navlinks {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  font-size: 0.9375rem;
+  color: var(--text-inverse);
 }
 
-.nav__links a:hover {
-  color: var(--color-primary);
+.site-header__navlinks a {
+  position: relative;
+  padding-block: 2px;
+}
+
+.site-header__navlinks a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.25s var(--ease);
+}
+
+.site-header__navlinks a:hover::after,
+.site-header__navlinks a:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.site-header__lang {
+  display: flex;
+  align-items: center;
+  gap: 6px;
+  font-size: 0.8125rem;
+  color: var(--text-on-accent);
+}
+
+.site-header__lang-btn {
+  color: var(--text-on-accent);
+  transition: color 0.15s var(--ease);
+}
+
+.site-header__lang-btn.is-active,
+.site-header__lang-btn:hover {
+  color: var(--text-inverse);
+}
+
+.site-header__resume {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  border: 1px solid var(--text-inverse);
+  border-radius: 100px;
+  padding: 10px 18px;
+  font-size: 0.8125rem;
+  color: var(--text-inverse);
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.site-header__resume:hover {
+  background-color: var(--text-inverse);
+  color: var(--hero-bg);
+}
+
+@media (max-width: 860px) {
+  .site-header__lang {
+    display: none;
+  }
+
+  .site-header__nav {
+    gap: 20px;
+  }
+
+  .site-header__navlinks {
+    gap: 20px;
+  }
+}
+
+@media (max-width: 640px) {
+  .site-header {
+    height: 72px;
+  }
+
+  .site-header__navlinks {
+    display: none;
+  }
 }
 
 /* ==========================================================================
-   Seções
+   Hero
    ========================================================================== */
-.hero,
-.section {
-  max-width: var(--container-width);
-  margin: 0 auto;
-  padding: var(--spacing-xl) var(--spacing-lg);
-}
-
 .hero {
-  text-align: center;
+  position: relative;
+  overflow: hidden;
+  background-color: var(--hero-bg);
+  min-height: 100vh;
+}
+
+/* Wrapper que "prende" a Hero no topo pelo percurso inteiro: 100vh de
+   crescimento da foto (+ transição para o header) e depois 120vh de
+   revelação do texto da secção Sobre por cima dela — um único pin,
+   sem secções separadas (ver initHeroScrollMorph). Sem JS, telemóvel
+   ou prefers-reduced-motion, não ganha altura extra nem sticky — a
+   Hero comporta-se como uma secção normal. */
+.hero-pin-wrap.is-pinned {
+  position: relative;
+  height: 320vh;
+}
+
+.hero-pin-wrap.is-pinned .hero {
+  position: sticky;
+  top: 0;
+  height: 100vh;
+}
+
+.hero__inner {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  min-height: 100vh;
+  padding-block: 72px 32px;
+}
+
+/* "HI, I'm LUANA" — título gigante em Playfair Display, config. exata
+   do node de referência do Figma (240px / line-height 200px = 0.8333,
+   letter-spacing -8%). align-self:flex-start — sem isto o H1 herdava
+   o align-items:stretch do pai flex-column (.hero__inner) e ficava
+   com a largura da própria caixa igual à do container, mesmo com o
+   texto lá dentro bem mais curto; fitHeroName (initHeroScrollMorph)
+   mede essa largura para escalar a fonte até encostar no Currículo,
+   e com a caixa já "esticada" a largura medida era sempre ~igual à
+   disponível — a conta dava sempre ~1:1, sem nunca crescer para lá
+   dos 240px. Encolhida à largura do texto, a medição fica correta. */
+.hero__name {
+  align-self: flex-start;
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2.5rem, 16.667vw, 15rem);
+  line-height: 0.8333;
+  letter-spacing: -0.08em;
+  white-space: nowrap;
+  color: var(--text-inverse);
+  margin-bottom: 30px;
+}
+
+.hero__name em {
+  font-style: italic;
+}
+
+/* "HI, " e "NA" desaparecem (largura + opacidade encolhem via JS) até
+   sobrar só "I'm LUA" — formando a logo do header, sem duplicar
+   texto (ver initHeroScrollMorph). */
+.hero__name-drop {
+  display: inline-block;
+  white-space: nowrap;
+}
+
+/* overflow:hidden só entra quando o JS começa mesmo a encolher a
+   largura (ver initHeroScrollMorph) — no estado parado ele cortaria a
+   ponta da vírgula de "HI,", que precisa de espaço extra para o rabo. */
+.hero__name-drop.is-collapsing {
+  overflow: hidden;
+}
+
+/* Linha de navegação embutida na Hero */
+.hero__navrow {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: center;
+  justify-content: space-between;
+  gap: 16px 32px;
+}
+
+.hero__tagline {
+  font-size: 0.875rem;
+  color: var(--text-inverse);
+}
+
+.hero__navlinks {
+  display: flex;
+  align-items: center;
+  gap: 48px;
+  font-size: 0.875rem;
+  color: var(--text-inverse);
+}
+
+.hero__navlinks a {
+  position: relative;
+  padding-block: 2px;
+}
+
+.hero__navlinks a::after {
+  content: '';
+  position: absolute;
+  left: 0;
+  bottom: -2px;
+  width: 100%;
+  height: 1px;
+  background: currentColor;
+  transform: scaleX(0);
+  transform-origin: right;
+  transition: transform 0.25s var(--ease);
+}
+
+.hero__navlinks a:hover::after,
+.hero__navlinks a:focus-visible::after {
+  transform: scaleX(1);
+  transform-origin: left;
+}
+
+.hero__resume {
+  display: inline-flex;
+  align-items: center;
+  flex-shrink: 0;
+  border-radius: 100px;
+  padding: 10px 18px;
+  /* Sem borda em repouso (só ganha fundo no hover), o padding-right
+     empurraria o "↗" para dentro, desalinhado da margem direita da
+     página (ver "LUANA" e "Disponível para trabalho", ambos flush
+     nessa mesma margem). A margem negativa devolve o texto à grelha
+     sem perder a área de hover generosa nos dois lados. */
+  margin-right: -18px;
+  font-size: 0.875rem;
+  color: var(--text-inverse);
+  transition: background-color 0.2s var(--ease), color 0.2s var(--ease);
+}
+
+.hero__resume:hover {
+  background-color: var(--text-inverse);
+  color: var(--hero-bg);
+}
+
+/* Headline secundária, alinhada com "Sobre" da nav (via JS). O espaço
+   flexível que empurra o bloco para o fim da Hero (100vh) fica AQUI,
+   antes do texto — assim o 1x depois do texto fica sempre fixo e
+   colado à foto, não importa a altura do ecrã. */
+.hero__intro {
+  display: flex;
+  margin-top: auto;
+}
+
+.hero__headline {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 44px;
+  line-height: 1.0625;
+  letter-spacing: -0.008em;
+  color: var(--text-inverse);
+  max-width: 560px;
+  /* Espaço antes do texto é flexível (empurra tudo para o fim da Hero);
+     o espaço até à foto é fixo em 60px. */
+  margin-top: 1.5em;
+  margin-bottom: 60px;
+  /* Alinhado com a palavra "Sobre" da nav via JS (initHeadlineAlign);
+     este valor é só um recuo aproximado antes do JS calcular a posição exata. */
+  margin-left: 48%;
+}
+
+/* Linha final: hora/data local, foto, disponibilidade — empurrada para
+   o fim da Hero (que tem sempre 100vh de altura), acompanhando o
+   tamanho do ecrã; alinhados pela base para o padding de baixo valer
+   para o texto (a foto, mais alta, acompanha pela mesma linha de base). */
+.hero__bottom {
+  display: flex;
+  flex-wrap: wrap;
+  align-items: flex-end;
+  justify-content: space-between;
+  gap: 24px;
+}
+
+.hero__meta {
+  flex-shrink: 0;
+  display: flex;
+  align-items: center;
+  gap: 8px;
+  font-size: 0.9375rem;
+  color: var(--text-inverse);
+  white-space: nowrap;
+  /* Números com largura fixa — sem isto, o relógio a contar segundos
+     muda de largura a cada dígito e "empurra" a foto ao lado. */
+  font-variant-numeric: tabular-nums;
+}
+
+/* Bolinha "disponível para trabalho": núcleo sólido + dois anéis que
+   pulsam com camadas de transparência, desfasados no tempo, para o
+   efeito ficar sempre "piscando" sem pausa. */
+.hero__status-dot {
+  position: relative;
+  flex-shrink: 0;
+  width: 8px;
+  height: 8px;
+  border-radius: 50%;
+  background-color: currentColor;
+}
+
+.hero__status-dot::before,
+.hero__status-dot::after {
+  content: '';
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background-color: currentColor;
+  animation: hero-status-pulse 2.4s ease-out infinite;
+}
+
+.hero__status-dot::after {
+  animation-delay: 1.2s;
+}
+
+@keyframes hero-status-pulse {
+  0% {
+    transform: scale(1);
+    opacity: 0.7;
+  }
+  100% {
+    transform: scale(3.2);
+    opacity: 0;
+  }
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .hero__status-dot::before,
+  .hero__status-dot::after {
+    animation: none;
+    opacity: 0;
+  }
+}
+
+.hero__image {
+  flex: 1 1 320px;
+  max-width: 644px;
+  height: 162px;
+  margin-inline: auto;
+  /* A foto ignora o padding de baixo da Hero e vai até à borda da
+     secção vinho; só o texto (hora/disponível) respeita os 32px. */
+  margin-bottom: -32px;
+  overflow: hidden;
+  z-index: 2;
+}
+
+/* Durante a transição (initHeroScrollMorph), o JS troca esta caixa
+   para position:absolute e anima top/left/width/height até preencher
+   a Hero inteira — daí o will-change, só ativo nesse momento. */
+.hero__image.is-growing {
+  margin: 0;
+  max-width: none;
+  will-change: top, left, width, height;
+}
+
+/* Enquadramento fiel ao Figma: mostra só o padrão de vigas do teto,
+   cortando pelo topo da fotografia (evita revelar a figura mais abaixo). */
+.hero__image img {
+  width: 100%;
+  height: 100%;
+  object-fit: cover;
+  object-position: center top;
+}
+
+/* Texto da secção Sobre, sobreposto à MESMA foto da Hero (nenhuma
+   segunda imagem) — ver updateAboutReveal em initHeroScrollMorph. Nos
+   ecrãs/condições em que o pin corre (>=900px e sem
+   prefers-reduced-motion — mesmo gate de initHeroScrollMorph/canPin),
+   fica em cima da foto crescida, ocupando a Hero inteira; fora disso
+   cai no fluxo normal, depois do conteúdo da Hero, como uma secção
+   comum (initSimpleAboutReveal). Sem elementos interativos lá dentro,
+   por isso pode ignorar cliques sempre — não bloqueia a nav/links da
+   Hero por baixo enquanto ainda está invisível. */
+.hero__about {
+  position: relative;
+  z-index: 3;
+  pointer-events: none;
+}
+
+@media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+  .hero__about {
+    position: absolute;
+    inset: 0;
+  }
+
+  /* Nesse estado a foto cobre a Hero de ponta a ponta, sem o limite de
+     1440px do container — os blocos de texto precisam encostar nas
+     bordas verdadeiras da foto (não nas do container, mais estreito
+     que a foto em ecrãs largos), o mais longe possível da roupa escura
+     da modelo, que ocupa uma faixa larga e mais ou menos central da
+     imagem em qualquer tamanho de ecrã (a foto só é cortada na
+     vertical, nunca na horizontal — ver updateImagePin). Respiro e
+     largura em vw (não px), para a distância às bordas escalar junto
+     com a foto, não só com o container; especificidade via
+     ".hero__about X" para ganhar sempre dos breakpoints mais estreitos
+     definidos mais abaixo no ficheiro (900–1024px, por ex.), que não
+     sabem nada sobre este estado. */
+  .hero__about .about__overlay {
+    max-width: none;
+    margin-inline: 0;
+    padding-inline: var(--gutter);
+  }
+
+  .hero__about .about__text {
+    max-width: min(420px, 20vw);
+  }
+
+  /* Um pouco mais largo que .about__text: "De plantas" e "a interface."
+     (ver <br> no H2, index.html) precisam de caber cada um numa única
+     linha — com a mesma largura do texto ficavam a quatro linhas em
+     vez de duas. */
+  .hero__about .about__title {
+    max-width: min(480px, 27vw);
+  }
+
+  .hero__about .stats {
+    gap: 24px;
+  }
+
+  .hero__about .stat__label {
+    max-width: 100px;
+  }
 }
 
 /* ==========================================================================
-   Footer
+   Selected Work — layout compacto conforme o Figma (node 243:12311):
+   título + texto de apoio + lista de largura fixa à esquerda; imagem
+   a ocupar o quadrante direito todo, sangrando até à margem do ecrã
+   (fora do .container — ver .work-preview).
+
+   Sem interação de cursor para escolher o item ativo: é só a posição
+   do scroll dentro do pin (ver initWorkScrub, js/script.js) que tinge
+   a linha com o fundo secundário e revela a imagem correspondente,
+   "abrindo-a" a partir do canto inferior esquerdo (clip-path) — ver
+   Figma node 243:11647. Uma vez ativo, a linha inteira e a imagem
+   tornam-se um único link (botão de resultado conforme o Figma
+   245:12909) com um cursor circular próprio (ver initWorkCursor).
+
+   .work-pin-wrap "prende" a secção no ecrã enquanto se rola — mesmo
+   padrão da Hero (.hero-pin-wrap): a wrap ganha altura extra via
+   .work-pin-spacer, e .work-layout fica sticky lá dentro, preenchendo
+   o ecrã todo (título encostado ao topo, lista empurrada para baixo)
+   já no primeiro momento, antes de qualquer scroll. Só ativo a partir
+   de ~1620px — ver initWorkScrub e o breakpoint mais abaixo.
    ========================================================================== */
+.work {
+  padding-block: 0;
+}
+
+.work-pin-wrap {
+  position: relative;
+}
+
+.work-layout {
+  position: sticky;
+  top: 88px;
+  min-height: calc(100vh - 88px);
+  display: flex;
+  align-items: flex-start;
+  gap: 64px;
+  padding-top: 64px;
+}
+
+/* Altura suficiente para o scroll-scrub por 4 trabalhos (ver
+   initWorkScrub, js/script.js) — cada item precisa do seu próprio
+   troço de scroll para a imagem "abrir" com calma. */
+.work-pin-spacer {
+  height: 220vh;
+}
+
+/* Largura fixa — não flexível — larga o suficiente para o título mais
+   comprido MAIS o botão de resultado, lado a lado, sem quebrar linha.
+   Coluna esticada por toda a altura da secção, com o bloco do título
+   encostado ao topo e a lista empurrada para baixo (space-between) —
+   a posição de "repouso" antes de qualquer scroll. */
+.work-layout__left {
+  flex: 0 0 900px;
+  width: 900px;
+  align-self: stretch;
+  display: flex;
+  flex-direction: column;
+  justify-content: space-between;
+}
+
+/* Só a caixa da imagem — sem largura mínima grande, já que ela sangra
+   para fora do próprio .container (ver .work-preview). */
+.work-layout__right {
+  flex: 1 1 300px;
+  min-width: 240px;
+  align-self: stretch;
+}
+
+.work-heading__title {
+  font-family: var(--font-display);
+  font-weight: 400;
+  font-size: clamp(2rem, 3vw, 2.75rem);
+  line-height: 0.86;
+  letter-spacing: -0.05em;
+  color: var(--hero-bg);
+  max-width: 260px;
+}
+
+.work-heading__title em {
+  font-style: italic;
+}
+
+/* Posicionado de forma absoluta em relação a .work-layout (a linha
+   toda, não só a coluna esquerda): à direita, alinhado com o PT/EN do
+   header (mesma distância à margem do container, medida — ver
+   initWorkDescPosition, js/script.js), e no alto, alinhado com o
+   traço superior do primeiro work-item (a posição exata de "top"
+   varia com a altura do ecrã, por isso é calculada em JS, não fixa
+   em CSS). Assim que um work-item fica ativo (ver initWorkScrub),
+   desliza (translate, não top/right — anima suave) para junto do
+   título "Trabalhos selecionados", alinhado à esquerda. */
+.work-heading__desc {
+  position: absolute;
+  top: 0;
+  right: calc(var(--gutter) + 147.7px);
+  width: 300px;
+  text-align: right;
+  transition: transform 0.5s var(--ease);
+  font-family: var(--font-sans);
+  font-weight: 500;
+  font-size: 0.75rem;
+  line-height: 1.5;
+  color: var(--brand-accent);
+}
+
+.work-heading__desc.is-shifted {
+  text-align: left;
+}
+
+/* Caixa da imagem — ocupa o quadrante direito todo (topo a fundo da
+   secção) e sangra até à margem direita do ecrã, sem cantos
+   arredondados, como no Figma. O fundo (visível enquanto a imagem
+   "abre") usa a mesma cor da linha ativa (--bg-secondary). Invisível
+   em repouso — só aparece ao ativar um work-item pelo scroll. */
+/* Posicionado em relação a .work-layout (a linha toda, não a própria
+   coluna) para poder ir de facto de ponta a ponta: de baixo do
+   header (top:0, sem o padding-top de 64px que a coluna herdaria) até
+   ao fundo do ecrã (bottom:0), sangrando à direita — o quadrante
+   inteiro fica bege, sem nenhuma faixa em branco. left encosta
+   exatamente onde a lista termina (largura fixa da coluna esquerda,
+   sem o gap da flexbox — este painel não usa esse espaço). */
+.work-preview {
+  position: absolute;
+  top: 0;
+  bottom: 0;
+  left: calc(var(--gutter) + 900px);
+  right: 0;
+  overflow: hidden;
+  background-color: var(--bg-secondary);
+  opacity: 0;
+  transition: opacity 0.4s var(--ease);
+}
+
+.work-layout__right.has-preview .work-preview {
+  opacity: 1;
+}
+
+/* "Abre" a partir do canto inferior esquerdo até preencher o quadro
+   todo — clip-path em vez de opacity, para dar a sensação de a
+   imagem "caminhar" a partir do canto. Cada imagem é também um link
+   para o projeto (ver initWorkCursor) — só a ativa fica clicável. */
+/* 28px de fundo bege visível em toda a volta — a imagem em si fica
+   menor, encostada a essa margem, não a caixa toda. */
+.work-preview__link {
+  position: absolute;
+  inset: 28px;
+  display: block;
+  clip-path: polygon(0% 100%, 0% 100%, 0% 100%, 0% 100%);
+  transition: clip-path 0.7s var(--ease);
+  pointer-events: none;
+}
+
+.work-preview__link.is-active {
+  clip-path: polygon(0% 0%, 100% 0%, 100% 100%, 0% 100%);
+  pointer-events: auto;
+}
+
+.work-preview__img {
+  display: block;
+  width: 100%;
+  height: 100%;
+  object-fit: contain;
+  background-color: transparent;
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .work-preview__link {
+    clip-path: none;
+    opacity: 0;
+    transition: opacity 0.4s var(--ease);
+  }
+
+  .work-preview__link.is-active {
+    opacity: 1;
+  }
+}
+
+.work-list {
+  display: flex;
+  flex-direction: column;
+}
+
+.work-item {
+  border-top: 1px solid var(--border-default);
+}
+
+.work-item__link {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  padding: 20px 40px;
+  color: inherit;
+  text-decoration: none;
+  cursor: pointer;
+  transition: background-color 0.2s var(--ease);
+}
+
+/* Sem :hover — a única forma de ativar uma linha é o scroll (ver
+   initWorkScrub); :focus-visible fica como reserva de acessibilidade
+   para navegação por teclado (não é "interação com o cursor"). */
+.work-item__link:focus-visible,
+.work-item.is-active .work-item__link {
+  background-color: var(--bg-secondary);
+}
+
+.work-item__index {
+  flex-shrink: 0;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.work-item__content {
+  flex: 1 1 0%;
+  min-width: 0;
+  display: flex;
+  flex-direction: column;
+  gap: 12px;
+}
+
+.work-item__content h3 {
+  font-family: var(--font-serif);
+  font-weight: 500;
+  font-size: 1.5rem;
+  line-height: 1;
+  color: var(--brand-accent);
+  white-space: nowrap;
+}
+
+/* Descrição de cada work-item — presente no DOM (acessibilidade/SEO)
+   mas sempre oculta visualmente: o Figma não a mostra em nenhum dos
+   dois estados (o nó "Desc" está marcado hidden nos dois frames). */
+.work-item__desc {
+  position: absolute;
+  width: 1px;
+  height: 1px;
+  padding: 0;
+  margin: -1px;
+  overflow: hidden;
+  clip: rect(0, 0, 0, 0);
+  white-space: nowrap;
+  border: 0;
+}
+
+.tags {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 8px;
+}
+
+.chip {
+  background-color: var(--bg-primary);
+  border: 1px solid var(--border-default);
+  border-radius: 100px;
+  padding: 6px 12px;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  white-space: nowrap;
+}
+
+/* Botão de resultado (Figma 245:12909) — só aparece na linha ativa;
+   fica sempre reservado no layout (opacity, não max-width) para o
+   título nunca saltar de posição ao ativar/desativar. */
+.metric {
+  flex-shrink: 0;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-end;
+  gap: 6px;
+  text-align: right;
+  width: 160px;
+  opacity: 0;
+  transition: opacity 0.3s var(--ease);
+}
+
+.work-item.is-active .metric {
+  opacity: 1;
+}
+
+.metric__label {
+  white-space: nowrap;
+}
+
+.metric__value {
+  font-weight: 600;
+  font-size: 1.125rem;
+  line-height: 1.333;
+  color: var(--hero-bg);
+  white-space: nowrap;
+}
+
+.metric__link {
+  font-size: 0.8125rem;
+  line-height: 1.3;
+  color: var(--text-secondary);
+}
+
+/* Cursor circular (ver initWorkCursor) — só em dispositivos com rato
+   real; a seta do sistema continua visível por cima. */
+.work-cursor {
+  position: fixed;
+  top: 0;
+  left: 0;
+  width: 34px;
+  height: 34px;
+  border-radius: 50%;
+  background-color: var(--hero-bg);
+  pointer-events: none;
+  z-index: 500;
+  opacity: 0;
+  transform: translate(-100px, -100px) scale(0.7);
+  transition: opacity 0.25s var(--ease);
+  will-change: transform;
+}
+
+.work-cursor.is-visible {
+  opacity: 1;
+}
+
+@media (hover: none), (pointer: coarse) {
+  .work-cursor {
+    display: none;
+  }
+}
+
+/* ==========================================================================
+   About / Journey — texto sobreposto à foto da Hero (ver .hero__about);
+   overflow:hidden, fundo e min-height já vêm da própria .hero.
+   ========================================================================== */
+.about__overlay {
+  position: relative;
+  z-index: 1;
+  min-height: 100vh;
+  display: flex;
+  flex-direction: column;
+  /* flex-start, não space-between: com só as 2 rows como filhas
+     diretas, space-between espalhava-as pelos 100vh inteiros da foto
+     (título colado ao topo, "Durante oito anos..." lá muito em baixo)
+     — este gap é que passa a mandar na distância entre elas. O resto
+     da foto, sem texto por cima, continua visível abaixo da 2ª row. */
+  justify-content: flex-start;
+  gap: 150px;
+  /* Topo e base iguais (184px) — a margem de baixo, depois dos stats,
+     tem de bater certo com a margem de cima, debaixo do header. */
+  padding-block: 184px;
+}
+
+.about__row {
+  display: flex;
+  justify-content: space-between;
+  gap: 40px;
+}
+
+.about__row--top {
+  align-items: flex-start;
+}
+
+/* O texto fica encostado ao topo da row, mas os stats descem até à
+   base dele — não lado a lado alinhados pelo mesmo topo/base, os
+   stats "seguem" o texto rio abaixo. min-height reserva espaço
+   suficiente na row para esse desnível (ver .about__stats
+   align-self); no ecrã (Figma), a base dos stats fica bem mais
+   abaixo da base do texto. */
+.about__row--bottom {
+  align-items: flex-start;
+  min-height: 328px;
+}
+
+.about__stats {
+  align-self: flex-end;
+}
+
+.about__title {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: clamp(2.5rem, 5vw, 5.2rem);
+  line-height: 0.92;
+  letter-spacing: -0.01em;
+  color: var(--hero-bg);
+  max-width: 421px;
+}
+
+.about__title em {
+  font-style: italic;
+}
+
+.about__text {
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  /* Começa na cor secundária e escurece para a primária ao ser
+     revelado (ver .about__text.is-revealed), em vez de nascer já na
+     cor final — ver updateAboutReveal em initHeroScrollMorph. */
+  color: var(--text-secondary);
+  max-width: 420px;
+}
+
+.about__text--top {
+  text-align: left;
+}
+
+.about__stats {
+  margin-top: 0;
+}
+
+/* Sequência de revelação da secção Sobre: título, texto inferior
+   esquerdo, texto superior direito e dados, um de cada vez, à medida
+   que o scroll avança depois de a foto fixar em fullscreen (ver
+   updateAboutReveal em initHeroScrollMorph). */
+.about__title,
+.about__text,
+.about__stats {
+  opacity: 0;
+  transform: translateY(20px);
+  transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+}
+
+.about__text {
+  transition: opacity 0.8s var(--ease), transform 0.8s var(--ease), color 0.8s var(--ease);
+}
+
+.about__title.is-revealed,
+.about__text.is-revealed,
+.about__stats.is-revealed {
+  opacity: 1;
+  transform: none;
+}
+
+.about__text.is-revealed {
+  color: var(--text-primary);
+}
+
+@media (prefers-reduced-motion: reduce) {
+  .about__title,
+  .about__text,
+  .about__stats {
+    opacity: 1;
+    transform: none;
+    color: var(--text-primary);
+  }
+}
+
+.about__stats .stat__label {
+  color: var(--text-primary);
+}
+
+.stats {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 40px;
+  margin-top: 4px;
+}
+
+.stat {
+  display: flex;
+  flex-direction: column;
+  gap: 4px;
+}
+
+.stat__num {
+  font-family: var(--font-serif);
+  font-weight: 400;
+  font-size: 2.5rem;
+  line-height: 1.15;
+  letter-spacing: -0.3px;
+  color: var(--brand-accent);
+}
+
+.stat__label {
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  max-width: 140px;
+}
+
+/* ==========================================================================
+   Skills
+   ========================================================================== */
+.skills {
+  padding-top: 56px;
+  border-block: 1px solid var(--border-default);
+}
+
+.skills .eyebrow {
+  margin-bottom: 28px;
+}
+
+.skills-row {
+  display: flex;
+  flex-wrap: wrap;
+  gap: 32px;
+}
+
+/* Ao passar o rato, um preenchimento sólido "nasce" de baixo para
+   cima (::before, escala a partir da base) até cobrir o cartão
+   inteiro — reto, sem curva nenhuma, na mesma cor do header
+   (--hero-bg). Sem padding-block explícito: 360px de altura +
+   justify-content:center é que centra o conteúdo verticalmente. */
+.skill {
+  position: relative;
+  flex: 1 1 190px;
+  height: 360px;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  gap: 8px;
+  padding-inline: 32px;
+  overflow: hidden;
+  background-color: var(--bg-primary);
+}
+
+.skill::before {
+  content: '';
+  position: absolute;
+  inset: 0;
+  z-index: 0;
+  background-color: var(--hero-bg);
+  transform: scaleY(0);
+  transform-origin: bottom;
+  transition: transform 0.4s var(--ease);
+}
+
+.skill:hover::before {
+  transform: scaleY(1);
+}
+
+/* Enquanto um cartão está no estado de hover, os outros esmaecem —
+   :has() detecta o hover em qualquer irmão, :not(:hover) poupa o
+   próprio; sem nenhum em hover, ninguém esmaece. */
+.skills-row:has(.skill:hover) .skill:not(:hover) {
+  opacity: 0.4;
+}
+
+.skill h3 {
+  position: relative;
+  z-index: 1;
+  font-family: var(--font-sans);
+  font-weight: 600;
+  font-size: 1.125rem;
+  line-height: 1.333;
+  color: var(--brand-accent);
+  transition: color 0.35s var(--ease);
+}
+
+.skill p {
+  position: relative;
+  z-index: 1;
+  font-size: 0.8125rem;
+  color: var(--text-secondary);
+  transition: color 0.35s var(--ease);
+}
+
+.skill:hover h3 {
+  color: var(--text-inverse);
+}
+
+.skill:hover p {
+  color: var(--text-on-accent);
+}
+
+/* .skill também ganha a classe .reveal (ver initScrollReveal,
+   js/script.js) — sem esta regra mais específica, a lista de
+   transition dela (só opacity/transform) substituiria por completo a
+   de cima em vez de somar. Serve tanto para o fade de entrada (0→1,
+   ao ganhar .is-visible) como para o esmaecimento do hover depois —
+   os dois mexem em opacity no mesmo elemento, por isso usam sempre
+   esta mesma duração (não dá para ter uma mais lenta só na entrada:
+   o browser usa a transition ativa no momento da mudança, e nenhuma
+   classe distingue "a revelar agora" de "já revelado, em hover"). */
+.skill.reveal {
+  transition: opacity 0.4s var(--ease), transform 0.7s var(--ease);
+}
+
+/* ==========================================================================
+   Experience Timeline
+   ========================================================================== */
+/* 160px nas duas pontas (em vez da base 72px): mais respiro vindo de
+   "Trabalhos selecionados" (.work-layout já fecha com pouca margem,
+   8px, por causa do pin/scroll-scrub) e o mesmo respiro antes do
+   footer, até "Crio trabalhos que...". */
+.experience {
+  padding-top: 160px;
+}
+
+.experience .eyebrow {
+  margin-bottom: 32px;
+}
+
+.timeline__entry {
+  display: flex;
+  align-items: center;
+  gap: 40px;
+  padding-block: 18px;
+  border-bottom: 1px solid var(--border-default);
+}
+
+.timeline__date {
+  flex-shrink: 0;
+  width: 140px;
+  font-size: 0.8125rem;
+  color: var(--text-muted);
+}
+
+.timeline__role {
+  flex-shrink: 0;
+  font-size: 0.9375rem;
+  color: var(--brand-accent);
+  white-space: nowrap;
+}
+
+.timeline__sep {
+  flex-shrink: 0;
+  width: 4px;
+  height: 4px;
+  border-radius: 50%;
+  background-color: var(--text-muted);
+}
+
+.timeline__org {
+  flex: 1 1 0%;
+  min-width: 0;
+  font-size: 0.9375rem;
+  color: var(--text-secondary);
+}
+
+/* ==========================================================================
+   Footer / Contact
+   ========================================================================== */
+
+/* Wrapper que "prende" o footer no ecrã pelo percurso do pin — mesmo
+   padrão de .hero-pin-wrap/.work-pin-wrap: a wrap ganha altura extra
+   (só quando o JS confirma ecrã largo + sem prefers-reduced-motion,
+   ver initFooterFocus) e o footer fica sticky lá dentro, ocupando o
+   ecrã inteiro enquanto --fp-color avança de 0 a 1. Sem essa classe
+   (mobile / motion reduzido), a wrap não ganha altura nenhuma e o
+   footer flui normal, já no estado final (ver default `, 1)` de cada
+   var() abaixo). */
+.footer-pin-wrap {
+  position: relative;
+}
+
+.footer-pin-wrap.is-pinned {
+  height: 340vh;
+}
+
+.footer-pin-wrap.is-pinned .footer {
+  position: sticky;
+  top: 88px;
+  min-height: calc(100vh - 88px);
+}
+
+/* Fundo sempre branco — quem pinta o footer de vinho é a mancha
+   (.footer__glow) por cima, não esta cor. overflow:hidden recorta a
+   mancha (fica muito maior que a secção no fim do pin) às bordas do
+   footer. */
 .footer {
-  text-align: center;
-  padding: var(--spacing-lg);
-  color: var(--color-muted);
-  border-top: 1px solid #e5e7eb;
+  position: relative;
+  overflow: hidden;
+  display: flex;
+  flex-direction: column;
+  justify-content: center;
+  padding-block: 96px 48px;
+  background-color: var(--bg-primary);
+}
+
+/* A mancha não existe (scale 0, literalmente invisível) assim que o
+   footer fixa — só nasce depois de o utilizador começar a rolar lá
+   dentro (ver a folga no início de --fp-glow, initFooterFocus), como
+   uma surpresa, não algo já visível ao chegar. Daí cresce devagar,
+   encostada ao fundo, até cobrir o footer inteiro — sequência exata
+   dos 4 frames do Figma ("Footer / Contact"), aqui contínua em vez de
+   aos saltos, e esticada ao longo de quase todo o pin (não só um
+   troço curto) para a transição ler-se como lenta, não abrupta. Só a
+   escala muda, nunca o blur, por isso o contorno desfocado cresce
+   junto e sai do enquadramento perto do fim, ficando sólida — na
+   mesma cor de fundo do header (--hero-bg), não a --brand-accent do
+   resto da marca, para o footer "revelado" ler-se como a mesma
+   superfície escura da Hero/header, não uma cor à parte. --fp-glow
+   avança à frente de --fp-color (que só troca a cor do texto mais
+   tarde, ver .footer__heading etc.) para o texto nunca ficar a meio
+   caminho sobre uma mancha ainda incompleta — sempre nítido, nunca
+   lavado. Mesma ideia de scroll-scrub suave da secção "we keep our
+   focus on important things" de neutomni.com, aplicada aqui a uma
+   forma em vez de a texto. */
+.footer__glow {
+  position: absolute;
+  z-index: 0;
+  left: 50%;
+  bottom: -10%;
+  width: 55%;
+  max-width: 900px;
+  aspect-ratio: 1;
+  border-radius: 50%;
+  background-color: var(--hero-bg);
+  filter: blur(70px);
+  transform: translateX(-50%) scale(calc(var(--fp-glow, 1) * 5.4));
+  will-change: transform;
+}
+
+.footer__cta {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 40px;
+}
+
+/* Título grande — a cor acompanha a mancha por baixo (--fp-color, ver
+   initFooterFocus): vinho com "ignorar" a vermelho sobre o fundo
+   branco, branco assim que a mancha a cobre. */
+.footer__heading {
+  font-family: var(--font-display);
+  font-weight: 800;
+  font-style: normal;
+  text-transform: uppercase;
+  font-size: clamp(2rem, 3.4vw, 3.75rem);
+  line-height: 1.1;
+  letter-spacing: -0.01em;
+  max-width: 1300px;
+  text-wrap: balance;
+  color: var(--text-inverse); /* fallback sem color-mix */
+  color: color-mix(in oklch, var(--brand-accent) calc((1 - var(--fp-color, 1)) * 100%), var(--text-inverse) calc(var(--fp-color, 1) * 100%));
+}
+
+.footer__heading em {
+  font-style: italic;
+  font-weight: 400;
+  text-transform: lowercase;
+}
+
+/* "ignorar" fica sempre vermelho — sem acompanhar --fp-color como o
+   resto do título, ao contrário do que estava antes. */
+.footer__highlight {
+  text-decoration: underline;
+  text-decoration-thickness: 0.045em;
+  text-underline-offset: 0.1em;
+  color: var(--accent-highlight);
+}
+
+.footer__contact {
+  display: flex;
+  flex-direction: column;
+  align-items: flex-start;
+  gap: 14px;
+}
+
+.footer__contact .eyebrow {
+  color: var(--text-on-accent); /* fallback sem color-mix */
+  color: color-mix(in oklch, var(--brand-accent) calc((1 - var(--fp-color, 1)) * 100%), var(--text-on-accent) calc(var(--fp-color, 1) * 100%));
+}
+
+/* Botão de email — sempre a cor inversa do fundo do footer (contraste
+   garantido nas duas pontas do pin): marsala/branco sobre fundo
+   branco no início, branco/marsala assim que a mancha o cobre — daí
+   trocar no sentido oposto ao do resto do texto (bg-primary/brand-
+   accent, não o contrário). */
+.footer__email {
+  display: inline-flex;
+  align-items: center;
+  border-radius: 100px;
+  padding: 14px 24px;
+  font-family: var(--font-sans);
+  font-size: 0.9375rem;
+  line-height: 1.6;
+  white-space: nowrap;
+  background-color: var(--brand-accent); /* fallback sem color-mix */
+  color: var(--text-inverse); /* fallback sem color-mix */
+  background-color: color-mix(in oklch, var(--brand-accent) calc((1 - var(--fp-color, 1)) * 100%), var(--bg-primary) calc(var(--fp-color, 1) * 100%));
+  color: color-mix(in oklch, var(--text-inverse) calc((1 - var(--fp-color, 1)) * 100%), var(--brand-accent) calc(var(--fp-color, 1) * 100%));
+  transition: transform 0.15s var(--ease);
+}
+
+.footer__email:hover {
+  transform: scale(1.03);
+}
+
+.footer__email:active {
+  transform: scale(0.97);
+}
+
+.footer__bottom {
+  position: relative;
+  z-index: 1;
+  display: flex;
+  align-items: center;
+  justify-content: space-between;
+  flex-wrap: wrap;
+  gap: 16px;
+  margin-top: 164px;
+  padding-top: 24px;
+  border-top: 1px solid var(--border-default);
+  font-size: 0.8125rem;
+}
+
+.footer__copy {
+  color: var(--text-on-accent); /* fallback sem color-mix */
+  color: color-mix(in oklch, var(--text-secondary) calc((1 - var(--fp-color, 1)) * 100%), var(--text-on-accent) calc(var(--fp-color, 1) * 100%));
+}
+
+.footer__links {
+  display: flex;
+  align-items: center;
+  gap: 24px;
+  color: var(--text-inverse); /* fallback sem color-mix */
+  color: color-mix(in oklch, var(--text-primary) calc((1 - var(--fp-color, 1)) * 100%), var(--text-inverse) calc(var(--fp-color, 1) * 100%));
+}
+
+.footer__links a {
+  transition: opacity 0.2s var(--ease);
+}
+
+.footer__links a:hover {
+  opacity: 0.7;
+}
+
+/* Pin desativado (ver initFooterFocus): título mais compacto e sem o
+   respiro de 100vh do estado sticky. */
+@media (max-width: 899px), (prefers-reduced-motion: reduce) {
+  .footer__heading {
+    font-size: clamp(1.75rem, 5.5vw, 2.5rem);
+    line-height: 1.15;
+  }
+
+  .footer {
+    padding-block: 64px 40px;
+  }
+}
+
+/* ==========================================================================
+   Responsivo — Tablet
+   ========================================================================== */
+@media (max-width: 1619px) {
+  /* Colunas empilhadas — o pin e o scroll-scrub só fazem sentido lado
+     a lado, e a coluna esquerda de 900px fixos (título + lista + o
+     botão de resultado lado a lado) + a pré-visualização não cabem
+     confortavelmente abaixo disto, por isso .work-layout volta a
+     fluir normalmente e a wrap perde a altura extra reservada para o
+     "prender". */
+  .work-pin-spacer {
+    height: 0;
+  }
+
+  .work-layout {
+    position: static;
+    min-height: 0;
+    flex-direction: column;
+    gap: 40px;
+    padding-block: 64px 32px;
+  }
+
+  .work-layout__left {
+    width: auto;
+    max-width: 557px;
+    justify-content: flex-start;
+  }
+
+  /* Sem pin nem coluna direita — volta ao fluxo normal, logo abaixo
+     do título (o posicionamento absoluto só faz sentido lado a lado
+     com o resto da secção). */
+  .work-heading__desc {
+    position: static;
+    width: auto;
+    max-width: 334px;
+    text-align: left;
+    margin-top: 20px;
+  }
+
+  .work-list {
+    margin-top: 48px;
+  }
+
+  /* Sem scroll-scrub para a ativar (ver initWorkScrub), a imagem
+     nunca aparece aqui — a coluna direita fica sem função. */
+  .work-layout__right {
+    display: none;
+  }
+
+  /* Sem espaço para o botão de resultado ao lado — nem faz sentido
+     sem o scroll-scrub que o ativa, por isso fica sempre oculto aqui. */
+  .metric {
+    display: none;
+  }
+
+  /* Sem espaço para garantir uma linha só — volta a quebrar normalmente. */
+  .work-item__content h3 {
+    white-space: normal;
+  }
+}
+
+@media (max-width: 1024px) {
+  .hero__inner {
+    padding-block: 56px 32px;
+  }
+
+  .hero__navlinks {
+    gap: 24px;
+  }
+
+  .hero__headline {
+    font-size: 1.625rem;
+  }
+
+  .about__title {
+    max-width: 340px;
+  }
+
+  .about__text {
+    max-width: 320px;
+  }
+
+  .skill {
+    flex: 1 1 45%;
+  }
+}
+
+/* Sempre que o pin/crescimento da foto não corre — ecrã estreito OU
+   prefers-reduced-motion (mesmo gate de canPin/prefersReduced em
+   initHeroScrollMorph, negado) — .hero__about volta ao fluxo normal
+   (regra em .hero__about acima), e o texto da secção Sobre precisa do
+   seu próprio cartão claro, já que não há foto atrás dele para ler
+   por cima. */
+@media (max-width: 899px), (prefers-reduced-motion: reduce) {
+  .about__overlay {
+    min-height: auto;
+    padding-block: 40px;
+    gap: 40px;
+    background-color: var(--bg-primary);
+  }
+
+  .about__row,
+  .about__row--top,
+  .about__row--bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 24px;
+  }
+
+  .about__title,
+  .about__text {
+    max-width: none;
+  }
+
+  .stats {
+    gap: 28px;
+  }
+}
+
+/* ==========================================================================
+   Responsivo — Mobile
+   ========================================================================== */
+@media (max-width: 768px) {
+  .hero__inner {
+    padding-block: 40px 32px;
+  }
+
+  .hero__headline {
+    font-size: 1.375rem;
+    max-width: none;
+    margin-left: 0;
+  }
+
+  .hero__image {
+    order: -1;
+    flex-basis: 100%;
+    max-width: none;
+    margin-inline: 0;
+    margin-bottom: 0;
+  }
+
+  .work-layout {
+    padding-block: 56px 24px;
+  }
+
+  .work-item__link {
+    padding: 20px 0;
+  }
+
+  .work-item__index {
+    display: none;
+  }
+
+  .skill {
+    flex: 1 1 100%;
+  }
+
+  .timeline__entry {
+    flex-wrap: wrap;
+    gap: 8px 16px;
+  }
+
+  .timeline__sep {
+    display: none;
+  }
+
+  .timeline__org {
+    flex-basis: 100%;
+  }
+
+  .footer__bottom {
+    flex-direction: column;
+    align-items: flex-start;
+  }
+}
+
+@media (max-width: 480px) {
+  .hero__inner {
+    padding-block: 32px;
+  }
+
+  .hero__navrow {
+    gap: 12px 20px;
+  }
+
+  .hero__navlinks {
+    gap: 16px;
+  }
+
+  .heading-h2 {
+    font-size: 1.875rem;
+  }
+
+  .heading-h3 {
+    font-size: 1.375rem;
+  }
+}
+
+/* ==========================================================================
+   Animação de "descoberta" ao rolar (respeitando prefers-reduced-motion)
+   ========================================================================== */
+.reveal {
+  opacity: 0;
+  transform: translateY(24px);
+  transition: opacity 0.7s var(--ease), transform 0.7s var(--ease);
+}
+
+.reveal.is-visible {
+  opacity: 1;
+  transform: none;
+}
+
+/* Efeito cascata: dentro de um grupo revelado em conjunto, cada item
+   aparece com um pequeno atraso em relação ao anterior. */
+.skills-row .skill:nth-child(1) { transition-delay: 0ms; }
+.skills-row .skill:nth-child(2) { transition-delay: 90ms; }
+.skills-row .skill:nth-child(3) { transition-delay: 180ms; }
+.skills-row .skill:nth-child(4) { transition-delay: 270ms; }
+.skills-row .skill:nth-child(5) { transition-delay: 360ms; }
+
+/* Mesma especificidade das regras acima (2 classes + nth-child), por
+   isso a ordem no ficheiro é que decide — vem depois, ganha: sem
+   isto, o hover herdava o mesmo atraso escalonado do reveal de
+   entrada (0-360ms), em vez de reagir na hora. */
+.skills-row .skill:hover {
+  transition-delay: 0s;
+}
+
+.timeline__entry:nth-child(1) { transition-delay: 0ms; }
+.timeline__entry:nth-child(2) { transition-delay: 70ms; }
+.timeline__entry:nth-child(3) { transition-delay: 140ms; }
+.timeline__entry:nth-child(4) { transition-delay: 210ms; }
+.timeline__entry:nth-child(5) { transition-delay: 280ms; }
+
+@media (prefers-reduced-motion: reduce) {
+  .reveal {
+    opacity: 1;
+    transform: none;
+    transition-delay: 0ms !important;
+  }
 }

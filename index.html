@@ -1,46 +1,352 @@
 <!DOCTYPE html>
-<html lang="pt-BR">
+<html lang="pt">
 <head>
   <meta charset="UTF-8">
   <meta name="viewport" content="width=device-width, initial-scale=1.0">
-  <title>Luana Gondim | Portfólio</title>
+  <title>Luana Gondim — Product &amp; UX/UI Designer</title>
+  <meta name="description" content="Portfólio de Luana Gondim, Product &amp; UX/UI Designer. Desenho produtos digitais com o rigor de quem já desenhou edifícios.">
+  <meta name="color-scheme" content="light">
+
+  <!-- Open Graph -->
+  <meta property="og:type" content="website">
+  <meta property="og:title" content="Luana Gondim — Product & UX/UI Designer">
+  <meta property="og:description" content="Portfólio de Luana Gondim, Product & UX/UI Designer.">
+
+  <link rel="preconnect" href="https://fonts.googleapis.com">
+  <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+  <!-- Playfair Display ganha o peso 800 (ExtraBold) aqui só para o
+       título do footer (ver .footer__heading) — o resto do site usa
+       só o 400 normal/itálico já carregado. -->
+  <link href="https://fonts.googleapis.com/css2?family=Inter:wght@300;400;500;600&family=Newsreader:opsz,wght@6..72,400;6..72,500;6..72,600;6..72,700&family=Playfair+Display:ital,wght@0,400;0,800;1,400&display=swap" rel="stylesheet">
+
   <link rel="stylesheet" href="css/style.css">
 </head>
 <body>
+  <a class="skip-link" href="#conteudo" data-i18n="a11y.skip">Saltar para o conteúdo</a>
 
-  <header class="header">
-    <nav class="nav">
-      <a href="#" class="nav__logo">Luana Gondim</a>
-      <ul class="nav__links">
-        <li><a href="#sobre">Sobre</a></li>
-        <li><a href="#projetos">Projetos</a></li>
-        <li><a href="#contato">Contato</a></li>
-      </ul>
-    </nav>
+  <!-- Header real: invisível no topo da página, ganha corpo (fundo,
+       logo, nav) à medida que a Hero é "engolida" pelo scroll. -->
+  <header class="site-header" id="siteHeader">
+    <div class="site-header__inner">
+      <a href="#top" class="site-header__logo" aria-label="Luana Gondim — página inicial"><em>I'm</em> LUA</a>
+
+      <nav class="site-header__nav" aria-label="Navegação principal">
+        <div class="site-header__navlinks">
+          <a href="#trabalho">Trabalho</a>
+          <a href="#sobre">Sobre</a>
+          <a href="#contacto">Contacto</a>
+        </div>
+
+        <div class="site-header__lang" role="group" aria-label="Selecionar idioma">
+          <button type="button" class="site-header__lang-btn is-active" data-lang="pt" aria-pressed="true">PT</button>
+          <span aria-hidden="true">/</span>
+          <button type="button" class="site-header__lang-btn" data-lang="en" aria-pressed="false">EN</button>
+        </div>
+
+        <a href="assets/cv-luana-gondim.pdf" class="site-header__resume" download>Currículo ↗</a>
+      </nav>
+    </div>
   </header>
 
-  <main>
-    <section id="hero" class="hero">
-      <h1>Olá, eu sou Luana</h1>
-      <p>Substitua este bloco pelo conteúdo do design do Figma.</p>
+  <main id="conteudo">
+    <!-- Hero — presa ao topo (pinned) por todo o percurso: primeiro a
+         transição para o header e o crescimento da foto até fullscreen,
+         depois a revelação do texto da secção Sobre por cima dela — um
+         único elemento preso, uma única foto (ver initHeroScrollMorph). -->
+    <div class="hero-pin-wrap" id="heroPinWrap">
+      <section class="hero" id="top">
+        <div class="container hero__inner">
+          <h1 class="hero__name"><span class="hero__name-drop">HI, </span><em> I'm</em> LUA<span class="hero__name-drop">NA</span></h1>
+
+          <div class="hero__navrow">
+            <p class="hero__tagline">Product Design &amp; UX/UI Designer</p>
+            <nav class="hero__navlinks" aria-label="Navegação principal">
+              <a href="#trabalho">Trabalho</a>
+              <a href="#sobre" id="navSobre">Sobre</a>
+              <a href="#contacto">Contacto</a>
+            </nav>
+            <a href="assets/cv-luana-gondim.pdf" class="hero__resume" download>Currículo ↗</a>
+          </div>
+
+          <div class="hero__intro">
+            <p class="hero__headline">Desenho produtos digitais com o rigor de quem já desenhou edifícios.</p>
+          </div>
+
+          <div class="hero__bottom">
+            <span class="hero__meta" id="heroClock"></span>
+            <div class="hero__image">
+              <img src="assets/images/hero-arquitetura.jpg" width="644" height="323" loading="eager" alt="Fachada arquitetónica fotografada em diagonal, ligando o percurso de arquitetura de Luana ao design digital">
+            </div>
+            <span class="hero__meta hero__meta--status">
+              <span class="hero__status-dot" aria-hidden="true"></span>
+              Disponível para trabalho
+            </span>
+          </div>
+        </div>
+
+        <!-- Texto da secção Sobre: sobreposto à MESMA foto acima (sem
+             segunda imagem), revelado em sequência depois de ela fixar
+             em fullscreen — ver updateAboutReveal. -->
+        <div class="hero__about" id="sobre">
+          <div class="about__overlay container">
+            <div class="about__row about__row--top">
+              <h2 class="about__title">De plantas<br><em>a interface.</em></h2>
+              <p class="about__text about__text--top" data-i18n="about.p2">Em 2024 cofundei a Paparico, onde liderei o design UX/UI de ponta a ponta, da investigação e mapeamento de jornada a protótipos interativos e um aumento mensurável nas conversões. Procuro agora trazer esse mesmo rigor para uma equipa de Product Design e colaboração próxima com engenharia.</p>
+            </div>
+
+            <div class="about__row about__row--bottom">
+              <p class="about__text about__text--bottom" data-i18n="about.p1">Durante oito anos liderei projetos de arquitetura e design de interiores, geri cronogramas complexos, orçamentos e equipas multidisciplinares, do briefing à entrega. Esse trabalho construiu o pensamento sistémico que hoje aplico a produtos digitais: decompor problemas ambíguos, mapear estrutura antes do estilo, e desenhar para a forma como as pessoas realmente usam um espaço, físico ou digital.</p>
+
+              <dl class="stats about__stats">
+                <div class="stat">
+                  <dt class="stat__num">8+</dt>
+                  <dd class="stat__label" data-i18n="about.stats.0">Anos de pensamento sistémico</dd>
+                </div>
+                <div class="stat">
+                  <dt class="stat__num">2</dt>
+                  <dd class="stat__label" data-i18n="about.stats.1">Anos em product design</dd>
+                </div>
+                <div class="stat">
+                  <dt class="stat__num">+15%</dt>
+                  <dd class="stat__label" data-i18n="about.stats.2">Aumento de conversão, projeto real</dd>
+                </div>
+              </dl>
+            </div>
+          </div>
+        </div>
+      </section>
+    </div>
+
+    <!-- Skills -->
+    <section class="skills">
+      <div class="container">
+        <p class="eyebrow" data-i18n="skills.eyebrow">COMPETÊNCIAS E FERRAMENTAS</p>
+        <div class="skills-row">
+          <div class="skill">
+            <h3 data-i18n="skills.design.title">Design</h3>
+            <p data-i18n="skills.design.list">Figma (Auto-layout, Variáveis) - Design Thinking - Design Systems - StyleGuide</p>
+          </div>
+          <div class="skill">
+            <h3 data-i18n="skills.research.title">UX Research</h3>
+            <p data-i18n="skills.research.list">User Flows - Wireframing - Heurísticas de Nielsen - Testes de Usabilidade</p>
+          </div>
+          <div class="skill">
+            <h3 data-i18n="skills.process.title">Processo &amp; Agilidade</h3>
+            <p data-i18n="skills.process.list">Jira - Scrum/Kanban - DesignOps</p>
+          </div>
+          <div class="skill">
+            <h3 data-i18n="skills.tech.title">Técnico</h3>
+            <p data-i18n="skills.tech.list">HTML - CSS - JavaScript (noções)</p>
+          </div>
+          <div class="skill">
+            <h3 data-i18n="skills.ai.title">Inteligência Artificial</h3>
+            <p data-i18n="skills.ai.list">Figma Make - Claude - ChatGPT - Midjourney - Notion AI</p>
+          </div>
+        </div>
+      </div>
     </section>
 
-    <section id="sobre" class="section">
-      <h2>Sobre</h2>
+    <!-- Selected Work — layout compacto conforme o Figma (243:12311):
+         coluna esquerda (título + texto de apoio + lista, largura fixa
+         900px) presa no ecrã enquanto se rola (mesmo padrão da Hero:
+         .work-pin-wrap dá altura extra, .work-layout fica sticky lá
+         dentro), coluna direita com a imagem do trabalho ativo a
+         ocupar o quadrante todo. Sem interação de cursor para definir
+         o item ativo — só a posição do scroll (ver initWorkScrub,
+         js/script.js). Quando um item está ativo, a linha inteira e a
+         imagem tornam-se um único link (ver initWorkCursor para o
+         cursor circular), com o botão de resultado conforme o Figma
+         245:12909. -->
+    <section class="work" id="trabalho">
+      <div class="work-pin-wrap">
+        <div class="container work-layout">
+          <div class="work-layout__left">
+            <div class="work-heading">
+              <h2 class="work-heading__title">Trabalhos<br><em>selecionados</em></h2>
+              <p class="work-heading__desc" data-i18n="work.title">Estudos de caso de product design e 8+ anos de pensamento sistémico e estruturado.</p>
+            </div>
+
+            <ul class="work-list">
+              <li class="work-item">
+                <a class="work-item__link" href="#">
+                  <span class="work-item__index" aria-hidden="true">01</span>
+                  <div class="work-item__content">
+                    <h3 data-i18n="work.items.0.title">Paparico — Redesign da Landing Page</h3>
+                    <p class="work-item__desc" data-i18n="work.items.0.desc">Reestruturei a presença digital do negócio para construir confiança e gerar vendas diretas, da investigação com utilizadores a um protótipo interativo validado.</p>
+                    <ul class="tags">
+                      <li class="chip" data-i18n="work.items.0.tags.0">Investigação UX</li>
+                      <li class="chip" data-i18n="work.items.0.tags.1">Wireframing</li>
+                      <li class="chip" data-i18n="work.items.0.tags.2">Prototipagem</li>
+                    </ul>
+                  </div>
+                  <span class="metric">
+                    <span class="metric__label eyebrow" data-i18n="work.result">RESULTADO</span>
+                    <span class="metric__value" data-i18n="work.items.0.metric">+15% conversões</span>
+                    <span class="metric__link" data-i18n="work.viewProject">Ver projeto →</span>
+                  </span>
+                </a>
+              </li>
+
+              <li class="work-item">
+                <a class="work-item__link" href="#">
+                  <span class="work-item__index" aria-hidden="true">02</span>
+                  <div class="work-item__content">
+                    <h3 data-i18n="work.items.1.title">Paparico — Plataforma SaaS Interna</h3>
+                    <p class="work-item__desc" data-i18n="work.items.1.desc">Discovery, user flow e wireframing de um sistema de gestão interno que automatizou processos manuais de pedidos e faturação.</p>
+                    <ul class="tags">
+                      <li class="chip" data-i18n="work.items.1.tags.0">Discovery</li>
+                      <li class="chip" data-i18n="work.items.1.tags.1">User Flow</li>
+                      <li class="chip" data-i18n="work.items.1.tags.2">Design System</li>
+                    </ul>
+                  </div>
+                  <span class="metric">
+                    <span class="metric__label eyebrow" data-i18n="work.result">RESULTADO</span>
+                    <span class="metric__value" data-i18n="work.items.1.metric">4h/dia poupadas</span>
+                    <span class="metric__link" data-i18n="work.viewProject">Ver projeto →</span>
+                  </span>
+                </a>
+              </li>
+
+              <li class="work-item">
+                <a class="work-item__link" href="#">
+                  <span class="work-item__index" aria-hidden="true">03</span>
+                  <div class="work-item__content">
+                    <h3 data-i18n="work.items.2.title">NOS — Repensar a Experiência de Compra de Pacotes</h3>
+                    <p class="work-item__desc" data-i18n="work.items.2.desc">Conceito de redesign da jornada de compra de pacotes para uma das maiores operadoras de telecomunicações de Portugal.</p>
+                    <ul class="tags">
+                      <li class="chip" data-i18n="work.items.2.tags.0">UX/UI Design</li>
+                      <li class="chip" data-i18n="work.items.2.tags.1">Redesign Conceptual</li>
+                      <li class="chip" data-i18n="work.items.2.tags.2">Projeto Académico</li>
+                    </ul>
+                  </div>
+                  <span class="metric">
+                    <span class="metric__label eyebrow" data-i18n="work.result">RESULTADO</span>
+                    <span class="metric__value" data-i18n="work.items.2.metric">Estudo de caso</span>
+                    <span class="metric__link" data-i18n="work.viewProject">Ver projeto →</span>
+                  </span>
+                </a>
+              </li>
+
+              <li class="work-item">
+                <a class="work-item__link" href="#">
+                  <span class="work-item__index" aria-hidden="true">04</span>
+                  <div class="work-item__content">
+                    <h3 data-i18n="work.items.3.title">Apoia+ — Redesenhar o Acesso aos Apoios Públicos</h3>
+                    <p class="work-item__desc" data-i18n="work.items.3.desc">Projeto de grupo de pós-graduação que centraliza a informação dispersa sobre apoios públicos para micro e pequenas empresas — investigação, estratégia de negócio e identidade de marca.</p>
+                    <ul class="tags">
+                      <li class="chip" data-i18n="work.items.3.tags.0">Pesquisa UX</li>
+                      <li class="chip" data-i18n="work.items.3.tags.1">Estratégia de Negócio</li>
+                      <li class="chip" data-i18n="work.items.3.tags.2">Projeto de Grupo</li>
+                    </ul>
+                  </div>
+                  <span class="metric">
+                    <span class="metric__label eyebrow" data-i18n="work.result">RESULTADO</span>
+                    <span class="metric__value" data-i18n="work.items.3.metric">Estudo de caso</span>
+                    <span class="metric__link" data-i18n="work.viewProject">Ver projeto →</span>
+                  </span>
+                </a>
+              </li>
+            </ul>
+          </div>
+
+          <div class="work-layout__right">
+            <div class="work-preview" aria-hidden="true">
+              <a class="work-preview__link" data-index="0" href="#" tabindex="-1"><img class="work-preview__img" src="assets/images/paparico.png" loading="lazy" alt=""></a>
+              <a class="work-preview__link" data-index="1" href="#" tabindex="-1"><img class="work-preview__img" src="assets/images/saaspaparico.png" loading="lazy" alt=""></a>
+              <a class="work-preview__link" data-index="2" href="#" tabindex="-1"><img class="work-preview__img" src="assets/images/projeto%20nos.png" loading="lazy" alt=""></a>
+              <a class="work-preview__link" data-index="3" href="#" tabindex="-1"><img class="work-preview__img" src="assets/images/apoia.png" loading="lazy" alt=""></a>
+            </div>
+          </div>
+        </div>
+
+        <div class="work-cursor" aria-hidden="true"></div>
+
+        <div class="work-pin-spacer" aria-hidden="true"></div>
+      </div>
     </section>
 
-    <section id="projetos" class="section">
-      <h2>Projetos</h2>
-    </section>
-
-    <section id="contato" class="section">
-      <h2>Contato</h2>
+    <!-- Experience Timeline -->
+    <section class="experience">
+      <div class="container">
+        <p class="eyebrow" data-i18n="experience.eyebrow">EXPERIÊNCIA</p>
+        <ul class="timeline">
+          <li class="timeline__entry">
+            <span class="timeline__date" data-i18n="experience.items.0.date">Em curso</span>
+            <span class="timeline__role" data-i18n="experience.items.0.role">Pós-Graduação, Web UX/UI Design</span>
+            <span class="timeline__sep" aria-hidden="true"></span>
+            <span class="timeline__org">IADE — Universidade Europeia</span>
+          </li>
+          <li class="timeline__entry">
+            <span class="timeline__date">2026</span>
+            <span class="timeline__role" data-i18n="experience.items.1.role">UX/UI Designer</span>
+            <span class="timeline__sep" aria-hidden="true"></span>
+            <span class="timeline__org">Lisbon School of Design</span>
+          </li>
+          <li class="timeline__entry">
+            <span class="timeline__date">2024 — 2026</span>
+            <span class="timeline__role" data-i18n="experience.items.2.role">Cofundadora &amp; Product Designer</span>
+            <span class="timeline__sep" aria-hidden="true"></span>
+            <span class="timeline__org">Paparico</span>
+          </li>
+          <li class="timeline__entry">
+            <span class="timeline__date">2019 — 2025</span>
+            <span class="timeline__role" data-i18n="experience.items.3.role">Cofundadora &amp; Arquiteta</span>
+            <span class="timeline__sep" aria-hidden="true"></span>
+            <span class="timeline__org">Atelier Bossa</span>
+          </li>
+          <li class="timeline__entry">
+            <span class="timeline__date">2025</span>
+            <span class="timeline__role" data-i18n="experience.items.4.role">Bootcamp UX/UI</span>
+            <span class="timeline__sep" aria-hidden="true"></span>
+            <span class="timeline__org">Escola EDIT</span>
+          </li>
+        </ul>
+      </div>
     </section>
   </main>
 
-  <footer class="footer">
-    <p>&copy; 2026 Luana Gondim. Todos os direitos reservados.</p>
-  </footer>
+  <!-- Footer / Contact — uma mancha desfocada (.footer__glow) nasce
+       pequena, encostada ao fundo, e cresce até cobrir a secção toda
+       (branco → vinho sólido), com o texto a acompanhar (maroon/
+       "ignorar" a vermelho → branco) — sequência exata do Figma
+       (4 frames "Footer / Contact"), tocada ao longo de um pin no
+       scroll em vez de cortada em passos, mesmo padrão de
+       .hero-pin-wrap/.work-pin-wrap (a wrap ganha altura extra via
+       .is-pinned, o footer fica sticky lá dentro — ver
+       initFooterFocus, js/script.js) e mesma ideia de scroll-scrub
+       suave da secção "we keep our focus on important things" de
+       neutomni.com. Uma única custom property (--fp-color, 0→1)
+       controla a escala do glow e a cor do texto a cada frame — ver
+       .footer/.footer__glow, css/style.css. Sem esse pin (mobile ou
+       prefers-reduced-motion), o footer nasce direto no estado final
+       — só um fade simples de entrada (.footer__cta em .reveal, ver
+       initScrollReveal). -->
+  <div class="footer-pin-wrap">
+    <footer class="footer" id="contacto">
+      <div class="footer__glow" aria-hidden="true"></div>
+      <div class="container">
+        <div class="footer__cta">
+          <p class="footer__heading" data-i18n="footer.title" data-i18n-html>
+            Crio trabalhos que capturam a <em>atenção</em>, despertam <em>emoções</em> e são impossíveis de <span class="footer__highlight">ignorar</span>.
+          </p>
+
+          <div class="footer__contact">
+            <p class="eyebrow" data-i18n="footer.eyebrow">VAMOS CONVERSAR?</p>
+            <a href="mailto:gondimluana31@gmail.com" class="footer__email">gondimluana31@gmail.com</a>
+          </div>
+        </div>
+
+        <div class="footer__bottom">
+          <p class="footer__copy" data-i18n="footer.copyright">Luana Gondim — Product &amp; UX/UI Designer</p>
+          <div class="footer__links">
+            <a href="#" data-i18n="footer.linkedin" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <a href="#" data-i18n="footer.behance" target="_blank" rel="noopener noreferrer">Behance</a>
+            <span data-i18n="footer.location">Lisboa, Portugal</span>
+          </div>
+        </div>
+      </div>
+    </footer>
+  </div>
 
   <script src="js/script.js"></script>
 </body>
