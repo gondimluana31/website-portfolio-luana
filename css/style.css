@@ -378,6 +378,44 @@ button:focus-visible,
   color: var(--hero-bg);
 }
 
+/* ---- A partir daqui: só MOBILE (ver princípio gravado em memória —
+   nenhuma regra desta zona deve alterar o desktop). Classes com
+   sufixo "-m" e sempre dentro de @media (max-width: …) — nunca reaproveita
+   nem afrouxa um seletor/gate já existente do desktop (ex.: .is-pinned,
+   .is-visible, .about__title...). Fora do breakpoint mobile, os
+   wrappers "-m" são display:contents (photos zero impacto no
+   desktop, verificado pixel a pixel) e os estados (.is-pinned-m,
+   .is-open-m, .is-shown-m, .is-growing-m) não têm CSS nenhum
+   associado. Ver initMobileMenu/initMobileHeroMorph, js/script.js —
+   nenhum dos dois toca em initHeroScrollMorph. ---- */
+
+/* Fora do mobile, .site-header__menu-m é só um wrapper de conveniência
+   (agrupa nav+idioma) — invisível para o layout, os dois continuam
+   itens soltos de .site-header__nav, exatamente como antes. */
+.site-header__menu-m {
+  display: contents;
+}
+
+.site-header__menu-toggle-m {
+  display: none;
+}
+
+/* Quebras de linha forçadas só no MOBILE (ver .hero__name/.hero__headline
+   em index.html) — sem efeito nenhum no desktop, que continua a quebrar
+   (ou não) sozinho, exatamente como antes. */
+.hero__name-break-m,
+.hero__headline-break-m {
+  display: none;
+}
+
+/* Duplicado de "Disponível para trabalho" só para o MOBILE (ver
+   index.html) — sobreposto à foto em vez de ficar numa fila por
+   baixo dela (hora/data e o .hero__meta--status original ficam
+   escondidos nesse breakpoint, ver abaixo). */
+.hero__status-m {
+  display: none;
+}
+
 @media (max-width: 860px) {
   .site-header__lang {
     display: none;
@@ -488,12 +526,27 @@ button:focus-visible,
   gap: 16px 32px;
 }
 
+/* Fora do mobile, .hero__topline-m é só um wrapper de conveniência no
+   HTML (agrupa tagline+currículo, ver index.html) — invisível para o
+   layout, os dois continuam itens soltos de .hero__navrow. Como o
+   currículo passou a ficar ANTES da nav no markup (para poder formar
+   uma linha com a tagline só no mobile — ver @media abaixo), sem isto
+   o desktop trocaria visualmente a ordem de sempre (tagline, nav,
+   currículo) para (tagline, currículo, nav); os três "order" abaixo
+   restauram a ordem original independentemente da posição no HTML —
+   ver .hero__navrow, flex acima. */
+.hero__topline-m {
+  display: contents;
+}
+
 .hero__tagline {
+  order: 0;
   font-size: 0.875rem;
   color: var(--text-inverse);
 }
 
 .hero__navlinks {
+  order: 1;
   display: flex;
   align-items: center;
   gap: 48px;
@@ -526,6 +579,7 @@ button:focus-visible,
 }
 
 .hero__resume {
+  order: 2;
   display: inline-flex;
   align-items: center;
   flex-shrink: 0;
@@ -733,6 +787,15 @@ button:focus-visible,
   }
 }
 
+/* Duplicado de .hero__about só para o MOBILE (ver index.html,
+   .hero__about-m/.about-m__* — nenhuma classe partilhada com
+   .hero__about/.about__* de cima) — escondido fora do breakpoint
+   mobile; o conteúdo e o posicionamento em cima da foto ficam
+   definidos lá em baixo, na secção "Mobile" deste ficheiro. */
+.hero__about-m {
+  display: none;
+}
+
 /* ==========================================================================
    Selected Work — layout compacto conforme o Figma (node 243:12311):
    título + texto de apoio + lista de largura fixa à esquerda; imagem
@@ -785,7 +848,6 @@ button:focus-visible,
    encostado ao topo e a lista empurrada para baixo (space-between) —
    a posição de "repouso" antes de qualquer scroll. */
 .work-layout__left {
-  flex: 0 0 900px;
   width: 900px;
   align-self: stretch;
   display: flex;
@@ -974,6 +1036,25 @@ button:focus-visible,
   clip: rect(0, 0, 0, 0);
   white-space: nowrap;
   border: 0;
+}
+
+/* Janela de foto de cada work-item — só existe no mobile (ver
+   @media max-width:768px, "Responsivo — Mobile"): no desktop e no
+   tablet a pré-visualização já vem pela coluna direita/scroll-scrub
+   (.work-layout__right, a partir de 1440px — initWorkScrub), que aqui
+   fica sempre oculta (ver regra em max-width:1619px), por isso o
+   card ganha a sua própria imagem por baixo. Oculta por omissão para
+   nunca aparecer fora do mobile. */
+.work-item__photo {
+  display: none;
+}
+
+.work-item__photo img {
+  display: block;
+  width: 100%;
+  aspect-ratio: 4 / 3;
+  object-fit: cover;
+  border-radius: 4px;
 }
 
 .tags {
@@ -1425,7 +1506,15 @@ button:focus-visible,
   border-radius: 50%;
   background-color: var(--hero-bg);
   filter: blur(70px);
-  transform: translateX(-50%) scale(calc(var(--fp-glow, 1) * 5.4));
+  /* --footer-glow-scale por variável (não o "5.4" fixo) para o mobile
+     poder aumentar só este número (ver @media max-width:768px) sem
+     duplicar a fórmula toda — o círculo de partida é bem mais pequeno
+     em ecrãs estreitos (55% de ~400px, não de ~1400px+), e o blur de
+     70px (em px fixos, não %) come uma fatia proporcionalmente maior
+     desse círculo menor, por isso precisa de um multiplicador maior
+     para mesmo assim cobrir o ecrã todo sem sobrar franja desfocada
+     nos cantos. */
+  transform: translateX(-50%) scale(calc(var(--fp-glow, 1) * var(--footer-glow-scale, 5.4)));
   will-change: transform;
 }
 
@@ -1547,8 +1636,12 @@ button:focus-visible,
 }
 
 /* Pin desativado (ver initFooterFocus): título mais compacto e sem o
-   respiro de 100vh do estado sticky. */
-@media (max-width: 899px), (prefers-reduced-motion: reduce) {
+   respiro de 100vh do estado sticky. Só no tablet (769-899px, faixa
+   estreita demais para o pin ler bem) e com prefers-reduced-motion —
+   no mobile (≤768px) o pin agora liga também (ver initFooterFocus),
+   por isso o footer usa as mesmas regras "cheias" do desktop
+   (.footer__heading/.footer sem overrides aqui). */
+@media (min-width: 769px) and (max-width: 899px), (prefers-reduced-motion: reduce) {
   .footer__heading {
     font-size: clamp(1.75rem, 5.5vw, 2.5rem);
     line-height: 1.15;
@@ -1630,7 +1723,7 @@ button:focus-visible,
   }
 
   .hero__headline {
-    font-size: 1.625rem;
+    font-size: 32px;
   }
 
   .about__title {
@@ -1686,10 +1779,113 @@ button:focus-visible,
     padding-block: 40px 32px;
   }
 
+  /* .hero__inner mantém min-height:100vh (regra base partilhada) e
+     .hero__intro o seu margin-top:auto — de propósito: é esse
+     mecanismo que empurra .hero__bottom (a foto) até encostar mesmo
+     na base do ecrã, pronta para "crescer" a partir daí no scroll
+     (ver updateImagePin, initMobileHeroMorph) em vez de ter de saltar
+     de posição primeiro. O nome bem maior (.hero__name abaixo) já
+     ocupa espaço suficiente no topo para a folga do meio não ficar
+     com um vazio enorme, como acontecia antes com um nome mais
+     pequeno. */
+
+  /* Reordena a Hero conforme o Figma mobile (271:15262): tagline +
+     Currículo formam uma linha própria no topo, o nome vem a seguir e
+     só depois a nav — não a sequência de sempre (nome, depois tudo o
+     resto junto). .hero__navrow "desaparece" (display:contents) para
+     .hero__topline-m e .hero__navlinks poderem ser reordenados como
+     itens diretos de .hero__inner, ao lado do nome. */
+  .hero__navrow {
+    display: contents;
+  }
+
+  .hero__topline-m {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    order: -3;
+  }
+
+  .hero__name {
+    order: -2;
+    /* Sem o nowrap do desktop (que existe só para o JS medir/encolher
+       a largura no scroll morph — inativo aqui), o nome quebra em
+       duas linhas como no Figma ("HI, I'm" / "LUANA") — a quebra em
+       si é forçada por um <br> próprio (.hero__name-break-m, ver
+       abaixo e index.html), não pelo reflow; o tamanho é que sobe
+       bem acima do clamp pensado para ecrãs largos, para cada linha
+       encostar às duas margens (esquerda e direita) do container,
+       preenchendo a largura toda. white-space:normal fica como rede
+       de segurança (deixa "HI, I'm" quebrar sozinho num ecrã minúsculo
+       em vez de estourar a largura). */
+    white-space: normal;
+    font-size: clamp(4.5rem, 32vw, 8.5rem);
+    margin-bottom: 20px;
+  }
+
+  .hero__name-break-m {
+    display: inline;
+  }
+
+  /* .hero__name-drop é inline-block só para o JS conseguir encolher a
+     LARGURA de "HI, "/"NA" no scroll morph do desktop (não usado aqui
+     — o mobile faz o mesmo encolhimento de largura, ver
+     initMobileHeroMorph, mas um inline-block, ao contrário de texto
+     normal, aceita quebra de linha mesmo colado ao texto vizinho sem
+     espaço nenhum, o que partia "LUANA" ao meio ("LUA" numa linha,
+     "NA" sozinho na seguinte). Sem essa exigência aqui, volta a ser
+     inline puro. */
+  .hero__name-drop {
+    display: inline;
+    white-space: normal;
+  }
+
+  .hero__navlinks {
+    order: -1;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  /* Botão do Currículo — sem o corte de padding do desktop (pensado
+     para alinhar com a margem quando o botão é só mais um item da
+     navrow) e com contorno visível, já que aqui é o único botão
+     isolado no topo (mesmo tratamento do botão do header fixo). */
+  .hero__resume {
+    margin-right: 0;
+    border: 1px solid var(--text-inverse);
+  }
+
+  /* O espaço que sobra (antes .hero__intro absorvia via margin-top:auto,
+     regra base partilhada) passa para .hero__bottom — assim a headline
+     fica logo a seguir à nav (sem recuo nenhum, a preencher a largura
+     toda) e é a foto lá em baixo que continua a ser empurrada até à
+     base do ecrã, pronta para "crescer" a partir daí (ver
+     updateImagePin, initMobileHeroMorph). */
+  .hero__intro {
+    margin-top: 24px;
+  }
+
   .hero__headline {
-    font-size: 1.375rem;
+    font-size: 28px;
     max-width: none;
-    margin-left: 0;
+    text-align: left;
+    /* Recuo à esquerda (~18%, marcado à mão) em vez de encostado à
+       margem ou espalhado pela largura toda — cada linha começa no
+       mesmo sítio, mais perto do centro do que do "Trabalho". */
+    margin-left: 18%;
+  }
+
+  /* Garante sempre as 3 linhas do Figma (ver os <br> em index.html) —
+     em vez de depender do reflow orgânico, que muda de 2 a 4 linhas
+     conforme a largura exata do ecrã. */
+  .hero__headline-break-m {
+    display: inline;
+  }
+
+  .hero__bottom {
+    margin-top: auto;
   }
 
   .hero__image {
@@ -1697,41 +1893,612 @@ button:focus-visible,
     flex-basis: 100%;
     max-width: none;
     margin-inline: 0;
-    margin-bottom: 0;
+    /* Mantém o -32px da regra base (ignora o padding-bottom de
+       .hero__inner, ver acima) — a foto vai mesmo até à base do ecrã,
+       pronta para "crescer" a partir daí (ver comentário acima). */
+    /* Containing block estável para a auréola (::after, mais abaixo)
+       mesmo em repouso — o JS só põe position:absolute inline durante
+       o crescimento (ver updateImagePin), e sem isto o ::after
+       escaparia para o ancestral posicionado mais próximo enquanto
+       .hero__image ainda está com position:static. */
+    position: relative;
+  }
+
+  /* Crescimento da foto no MOBILE (ver initMobileHeroMorph) — classe
+     própria, nunca a .is-growing do desktop (initHeroScrollMorph),
+     mesmo resultado visual (posição/tamanho vêm inline via JS). */
+  .hero__image.is-growing-m {
+    margin: 0;
+    max-width: none;
+    will-change: top, left, width, height;
+  }
+
+  /* Hora/data e o "Disponível para trabalho" original ficam escondidos
+     — "Disponível para trabalho" passa a ter a sua própria linha, por
+     cima da foto (.hero__status-m, ver index.html; order:-2 põe essa
+     linha antes da foto, que já é order:-1, ver acima). */
+  #heroClock,
+  .hero__bottom > .hero__meta--status {
+    display: none;
+  }
+
+  .hero__status-m {
+    order: -2;
+    flex-basis: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 0.9375rem;
+    color: var(--text-inverse);
+    white-space: nowrap;
+  }
+
+  /* ---- Sanduíche do header (ver initMobileMenu, js/script.js) ---- */
+  .site-header {
+    height: 72px;
+  }
+
+  .site-header__nav {
+    gap: 12px;
+  }
+
+  .site-header__menu-toggle-m {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin-right: -6px;
+    opacity: 0;
+    transition: opacity 0.4s var(--ease);
+  }
+
+  .site-header.is-visible .site-header__menu-toggle-m {
+    opacity: 1;
+  }
+
+  .site-header__menu-icon-m,
+  .site-header__menu-icon-m::before,
+  .site-header__menu-icon-m::after {
+    display: block;
+    width: 20px;
+    height: 1.5px;
+    background-color: var(--text-inverse);
+    transition: transform 0.25s var(--ease), opacity 0.2s var(--ease);
+  }
+
+  .site-header__menu-icon-m {
+    position: relative;
+  }
+
+  .site-header__menu-icon-m::before,
+  .site-header__menu-icon-m::after {
+    content: '';
+    position: absolute;
+    left: 0;
+  }
+
+  .site-header__menu-icon-m::before {
+    top: -6px;
+  }
+
+  .site-header__menu-icon-m::after {
+    top: 6px;
+  }
+
+  .site-header__menu-toggle-m.is-open-m .site-header__menu-icon-m {
+    background-color: transparent;
+  }
+
+  .site-header__menu-toggle-m.is-open-m .site-header__menu-icon-m::before {
+    top: 0;
+    transform: rotate(45deg);
+  }
+
+  .site-header__menu-toggle-m.is-open-m .site-header__menu-icon-m::after {
+    top: 0;
+    transform: rotate(-45deg);
+  }
+
+  /* .site-header__menu-m deixa de ser display:contents (regra base) e
+     passa a painel próprio, encostado ao fundo do header, com a nav +
+     PT/EN empilhados. */
+  .site-header__menu-m {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 28px;
+    position: fixed;
+    top: 72px;
+    left: 0;
+    right: 0;
+    background-color: var(--hero-bg);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 28px var(--gutter) 32px;
+    opacity: 0;
+    transform: translateY(-8px);
+    pointer-events: none;
+    transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+  }
+
+  .site-header__menu-m.is-open-m {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  /* display:flex explícito — sem isto, a regra pré-existente
+     ".site-header__navlinks{display:none}" (<=640px, pensada para o
+     tempo em que não havia painel nenhum para os links viverem lá
+     dentro) ganhava por ordem no ficheiro contra a base
+     "display:flex" (mesma especificidade, 1 classe); aqui o seletor
+     composto (2 classes) resolve isso sem tocar em nenhuma das duas
+     regras antigas. */
+  .site-header__menu-m .site-header__navlinks {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    font-size: 1.125rem;
+  }
+
+  .site-header__menu-m .site-header__lang {
+    display: flex;
+  }
+
+  /* Mecanismo do pin no MOBILE — classe própria (.is-pinned-m,
+     aplicada por initMobileHeroMorph), nunca a .is-pinned do desktop
+     (initHeroScrollMorph, acima, inalterada) — mesma ideia (a wrap
+     ganha altura extra, a Hero fica sticky lá dentro), só isolada por
+     completo. A altura real da wrap vem inline via JS
+     (wrap.style.height, calculada a partir de growRangePx/
+     revealRangePx) — position:relative aqui só por paridade com o
+     padrão do desktop. */
+  .hero-pin-wrap.is-pinned-m {
+    position: relative;
+  }
+
+  .hero-pin-wrap.is-pinned-m .hero {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+
+  /* ---- Duplicado "Sobre" (ver .hero__about-m/.about-m__*, index.html
+     e initMobileHeroMorph, js/script.js) ---- */
+  .hero__about-m {
+    display: block;
+    position: relative;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .hero-pin-wrap.is-pinned-m .hero__about-m {
+    position: absolute;
+    inset: 0;
+  }
+
+  .about-m__overlay {
+    position: relative;
+    min-height: 100%;
+  }
+
+  .about-m__title {
+    position: absolute;
+    /* Header do mobile tem 72px de altura (ver .site-header, mais
+       acima nesta secção) + 30px de respiro. */
+    top: 102px;
+    /* var(--gutter), não 0 — um offset absoluto conta a partir do
+       limite do padding do pai (.about-m__overlay, que já tem
+       padding-inline:var(--gutter) via .container), não do fim dele;
+       "left:0" ficava colado à borda verdadeira do ecrã, ignorando
+       esse padding e desalinhado do logo/Currículo do header (que
+       usam o mesmo --gutter). */
+    left: var(--gutter);
+    right: var(--gutter);
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(2.5rem, 8vw, 3.5rem);
+    line-height: 0.92;
+    letter-spacing: -0.01em;
+    color: var(--hero-bg);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+  }
+
+  .about-m__title em {
+    font-style: italic;
+  }
+
+  /* Texto/números sentam-se logo abaixo do título, os dois no topo da
+     foto (não um em cima e outro na base) — 100px cobre com folga as
+     duas linhas do título a este tamanho. */
+  .about-m__text,
+  .about-m__stats {
+    position: absolute;
+    left: var(--gutter);
+    right: var(--gutter);
+    top: calc(102px + 100px);
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .about-m__text {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    transition: opacity 0.8s var(--ease), transform 0.8s var(--ease), color 0.8s var(--ease);
+  }
+
+  /* Sempre numa linha só ("de forma linear"), nunca a quebrar para uma
+     2ª linha — nowrap + os 3 .stat a repartirem a largura em partes
+     iguais (flex:1), em vez do gap fixo de 40px que, com os 140px de
+     .stat__label (regra base, pensada para o desktop), não cabia nos
+     ~350px disponíveis no mobile e empurrava "+15%" para baixo. */
+  .about-m__stats {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 16px;
+    transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+  }
+
+  .about-m__stats .stat {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .about-m__stats .stat__label {
+    max-width: none;
+    color: var(--text-primary);
+  }
+
+  .about-m__title.is-shown-m,
+  .about-m__text.is-shown-m,
+  .about-m__stats.is-shown-m {
+    opacity: 1;
+    transform: none;
+  }
+
+  .about-m__text.is-shown-m {
+    color: var(--text-primary);
+  }
+
+  /* Título+texto sentam-se os dois no topo da foto — uma auréola clara
+     por trás garante leitura em qualquer parte da foto (::after para
+     pintar por cima da própria <img>, mas ainda por baixo do texto —
+     .hero__about-m tem z-index maior, ver acima). Mesmo motivo do
+     .footer__glow (uma elipse desfocada, não um degradê): forma real
+     (width/height + border-radius:50%, não um radial-gradient) e
+     filter:blur(20px), não um SVG feGaussianBlur embutido.
+
+     Vive dentro de .hero__image (não de .hero__about-m, como antes)
+     de propósito: a foto move-se e muda de tamanho durante o pin (ver
+     updateImagePin, initMobileHeroMorph) e a auréola tinha uma
+     posição fixa própria, presa ao ecrã, não à foto — ao voltar da
+     revelação do About para a Hero, a foto já estava a encolher de
+     volta enquanto a auréola ainda se desvanecia devagar (0.8s
+     transition) no MESMO lugar de sempre, ficando "descolada" por
+     cima de onde a foto já não estava mais. Como filho de
+     .hero__image, herda o mesmo top/left/width/height animado
+     (inline, via JS) sem precisar de matemática própria — encolhe e
+     move junto, sempre presa à foto; o overflow:hidden que
+     .hero__image já tinha (para o recorte da própria foto) recorta a
+     sobra dos lados de graça. width em % (não px fixos) para o bleed
+     nos dois lados escalar com a largura real da foto a cada
+     instante, não só com o estado final (foto a ocupar o ecrã
+     inteiro). Começa a 0 — .is-pinned-m liga assim que a página
+     carrega (antes de qualquer scroll), muito antes de haver texto
+     nenhum para iluminar; sem o opacity:0/.is-active-m (ligado por
+     initMobileHeroMorph só quando o primeiro texto já começou a
+     revelar-se), esta auréola aparecia sempre, "engolindo" o topo da
+     foto ao abrir a página. */
+  .hero-pin-wrap.is-pinned-m .hero__image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 190%;
+    height: 240px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background-color: rgba(226, 226, 226, 0.8);
+    filter: blur(20px);
+    opacity: 0;
+    transition: opacity 0.8s var(--ease);
+    pointer-events: none;
+    /* Sem isto, um elemento com filter:blur() a transicionar opacity
+       pode "colar" visualmente ao voltar a 0 num scroll rápido — o
+       browser não recompõe a camada a tempo (mesmo bug que
+       .footer__glow evita com will-change:transform, ver acima). */
+    will-change: opacity;
+  }
+
+  .hero-pin-wrap.is-pinned-m .hero__image.is-active-m::after {
+    opacity: 1;
   }
 
   .work-layout {
     padding-block: 56px 24px;
   }
 
+  /* Sem animação de entrada nesta secção no mobile — todos os
+     trabalhos aparecem juntos, já no estado final, sem o fade+subida
+     do .reveal geral (initScrollReveal, aplicado a .work-heading e
+     .work-item em qualquer largura de ecrã). Mesma ideia do
+     .skill.reveal (carrossel de competências, mais abaixo): o JS
+     continua a ligar/desligar as classes na mesma, só que aqui isso
+     deixa de ter efeito visual. A única animação que sobra na secção
+     é a janela de foto ao clicar (ver .work-item__photo). */
+  .work-heading.reveal,
+  .work-item.reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  /* Card e foto empilham-se na vertical dentro do mesmo link (linha
+     inteira continua clicável) — sem coluna nem scroll-scrub aqui, é
+     a única forma de ver a imagem do projeto no mobile. gap:0 anula o
+     gap de 40px da regra base (pensada para separar índice/conteúdo/
+     metric lado a lado) — aqui o espaço entre texto e foto é o
+     próprio margin-top de .work-item__photo, que só existe depois de
+     aberta (ver abaixo), para não sobrar nenhum espaço em branco
+     enquanto a foto está fechada. */
   .work-item__link {
     padding: 20px 0;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0;
   }
 
   .work-item__index {
     display: none;
   }
 
-  .skill {
-    flex: 1 1 100%;
+  .work-item__content {
+    flex-basis: 100%;
   }
 
+  /* Título "Trabalhos selecionados" com o mesmo tamanho de fonte do
+     título "De plantas a interface" no mobile (ver .about-m__title). */
+  .work-heading__title {
+    font-size: clamp(2.5rem, 8vw, 3.5rem);
+    padding-top: 40px;
+  }
+
+  /* Texto de apoio ("Estudos de caso...") na cor secundária, não no
+     tom de destaque da marca (regra base, pensada para o desktop), e
+     no mesmo tamanho de fonte de .skill p ("Figma Make - Claude -
+     ChatGPT..."), não nos 0.75rem da regra base. */
+  .work-heading__desc {
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+  }
+
+  /* Fechada por omissão (altura 0, sem reservar espaço nenhum na
+     lista) e "abre" de facto — cresce de 0 até à altura da imagem —
+     ao clicar no card, empurrando os cards seguintes para baixo (que
+     continuam todos visíveis, só descem). truque do grid 0fr→1fr (ver
+     .is-open, initWorkPhotoToggle em js/script.js): mais fiável do
+     que animar height/max-height, que precisa de um valor fixo em px
+     para transicionar. */
+  .work-item__photo {
+    display: grid;
+    flex-basis: 100%;
+    grid-template-rows: 0fr;
+    margin-top: 0;
+    overflow: hidden;
+    transition: grid-template-rows 0.7s var(--ease), margin-top 0.7s var(--ease);
+  }
+
+  /* A imagem em si também anima: entra com um leve zoom-out (mais
+     "chegada" do que um simples corte a aparecer) e um fade, um pouco
+     atrás da abertura da janela (delay) para o crescimento (acima) já
+     ter dado algum espaço antes de a imagem se revelar lá dentro. Ao
+     fechar (perde .is-open) o delay desliga — encolhe e esconde-se
+     em conjunto com a janela, sem atraso. */
+  .work-item__photo img {
+    overflow: hidden;
+    min-height: 0;
+    opacity: 0;
+    transform: scale(1.12);
+    transition: opacity 0.6s var(--ease), transform 0.9s var(--ease);
+  }
+
+  .work-item__photo.is-open {
+    grid-template-rows: 1fr;
+    margin-top: 20px;
+  }
+
+  .work-item__photo.is-open img {
+    opacity: 1;
+    transform: scale(1);
+    transition-delay: 0.15s;
+  }
+
+  /* Competências vira carrossel horizontal no mobile (ver Figma
+     275:15364 — a "Skills Row" já vem desenhada mais larga do que o
+     próprio frame de propósito: 1312px de conteúdo dentro de um
+     ecrã de 440px, para transbordar e dar a entender que se pode
+     arrastar/deslizar). scroll-snap prende cada cartão à borda ao
+     soltar o dedo, sem precisar de JS nenhum. */
+  .skills-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    /* Sangra para fora do padding do .container (a régua fica na
+       borda verdadeira do ecrã, mais natural para arrastar) e
+       reaplica esse respiro por dentro — o 1º cartão continua
+       alinhado com o "COMPETÊNCIAS E FERRAMENTAS" por cima, e o
+       último ganha a mesma margem à direita ao chegar ao fim,em vez
+       de ficar espremido contra a borda do .container. */
+    margin-inline: calc(-1 * var(--gutter));
+    padding-inline: var(--gutter);
+  }
+
+  .skills-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  /* Altura fixa (360px, regra base) existe para nivelar as 5 colunas
+     lado a lado no desktop — aqui cada cartão continua com essa
+     largura de coluna (237px, igual ao Figma), só sem crescer/encolher
+     (flex:1 esticaria para preencher a fila toda, sem overflow nenhum
+     para arrastar) e sem precisar da altura toda, já que não há mais
+     nenhum ao lado para nivelar. */
+  .skill {
+    flex: 0 0 237px;
+    height: auto;
+    padding-block: 32px;
+    scroll-snap-align: start;
+  }
+
+  /* Sem a animação de entrada (fade + subida, ver .reveal/.is-visible,
+     initScrollReveal) — o JS continua a ligar/desligar as classes na
+     mesma (não é mexido, é partilhado com o resto do site), só que
+     aqui isso deixa de ter efeito visual nenhum: os cartões já
+     aparecem no estado final. */
+  .skill.reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .experience {
+    padding-top: 80px;
+    padding-bottom: 80px;
+  }
+
+  /* Data + cargo + empresa, cada um na sua linha — em vez do híbrido
+     "cabe ao lado da data / quebra sozinho" conforme o comprimento do
+     texto (ver .timeline__date, largura fixa de 140px), que dava um
+     zigue-zague inconsistente entre entradas. */
   .timeline__entry {
-    flex-wrap: wrap;
-    gap: 8px 16px;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
   }
 
   .timeline__sep {
     display: none;
   }
 
-  .timeline__org {
-    flex-basis: 100%;
+  /* .footer usa justify-content:center + padding-block:96px 48px
+     (regra base, pensada para o desktop) para centrar o único filho em
+     fluxo (.container) dentro da altura toda do ecrã. No mobile isso
+     dava dois vãos bem diferentes: o padding-top fixo (96px) do
+     cabeçalho até o título, e o que sobrava (variável, muito maior)
+     entre o botão de email e a linha de baixo. Zerar o padding aqui e
+     deixar .container (flex:1) distribuir tudo sozinho com
+     space-evenly, não space-between, resolve os dois de uma vez: com
+     2 filhos (.footer__cta/.footer__bottom), space-evenly cria 3 vãos
+     IGUAIS — antes do CTA, entre CTA e o rodapé, depois do rodapé —
+     sempre do mesmo tamanho entre si, adaptado à altura real do ecrã,
+     em vez de um fixo e outro sobrando. */
+  .footer {
+    padding-block: 0;
+  }
+
+  .footer > .container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: space-evenly;
   }
 
   .footer__bottom {
     flex-direction: column;
     align-items: flex-start;
+    margin-top: 0;
+  }
+
+  /* top:88px (regra base) encosta certo no header do DESKTOP (também
+     88px de altura, ver .site-header) — no mobile o header é só 72px
+     (ver .site-header no mobile), por isso sobrava um vão de 16px
+     entre os dois. 72px encosta o início do footer direto na base do
+     header, sem gap nenhum (ver também HEADER_OFFSET em
+     initFooterFocus, que precisa do mesmo valor para a matemática do
+     scroll bater certo). */
+  .footer-pin-wrap.is-pinned .footer {
+    top: 72px;
+    min-height: calc(100vh - 72px);
+  }
+
+  /* 340vh (regra base, pensada para o desktop) exige bastante scroll
+     para a transição correr do início ao fim — aqui, um pouco menos
+     (260vh), a mesma sequência acontece com menos scroll, sem mexer
+     nas proporções internas dela (ease(p, 0.12, 0.92) etc., em
+     initFooterFocus — continuam iguais, só percorridas mais depressa
+     porque o total de scroll é menor). */
+  .footer-pin-wrap.is-pinned {
+    height: 260vh;
+  }
+
+  /* Tamanho fixo — não o clamp(2rem, 3.4vw, 3.75rem) da regra base
+     (pensado para o desktop), que aqui travava nos 32px mínimos. */
+  .footer__heading {
+    font-size: 40px;
+  }
+
+  /* Círculo de partida maior (90% em vez de 55% da largura do footer,
+     que aqui é a do próprio ecrã) e um multiplicador de escala maior
+     (--footer-glow-scale, ver .footer__glow) — sem isto, com os
+     mesmos 55%/5.4x do desktop, a mancha no fim do pin não chegava
+     aos cantos de um ecrã estreito e alto (ver comentário em
+     .footer__glow): sobrava uma franja desfocada em vez de vinho
+     sólido. Números com folga de propósito — cobrir a mais nunca se
+     nota (overflow:hidden em .footer corta o resto). */
+  /* top vem da posição real da palavra "ignorar" (medida em JS — ver
+     positionFooterGlowOrigin, .footer__highlight), não do ponto fixo
+     bottom:-10% da regra base (pensado para o desktop, onde o título
+     quebra de forma bem mais previsível) — mantém o alinhamento
+     vertical atrás da palavra. left fica fixo em 50%: centralizado na
+     página, não no X medido da palavra (que, por o título ser
+     alinhado à esquerda, ficava puxado para a margem esquerda).
+     bottom:auto anula o "-10%" da base — sem isso, top e bottom juntos
+     definiam a altura do elemento, entrando em conflito com
+     aspect-ratio:1. O valor de fallback (antes do JS medir, ou sem
+     JS) aproxima o centro do título, nunca o canto. */
+  .footer__glow {
+    width: 90%;
+    --footer-glow-scale: 8;
+    top: var(--fp-origin-top, 45%);
+    bottom: auto;
+    left: 50%;
+    /* translateY(-50%) além do X (regra base só centra a horizontal,
+       pensada para bottom:-10% ancorar por baixo) — aqui top é o
+       CENTRO medido da palavra, não o canto, por isso a mancha
+       precisa de se centrar nos dois eixos sobre esse ponto. */
+    transform: translate(-50%, -50%) scale(calc(var(--fp-glow, 1) * var(--footer-glow-scale, 5.4)));
+  }
+
+  /* Camada sólida, sem blur nenhum, por baixo do conteúdo — garante um
+     preenchimento 100% opaco no fim da transição, sem depender de a
+     mancha desfocada (.footer__glow) cobrir os cantos com exatidão: um
+     blur, por natureza, guarda sempre alguma transparência bem perto
+     da própria borda, por maior que seja a escala. Fica invisível
+     (opacity:0) enquanto a mancha ainda está a crescer, e só ganha
+     opacidade nos últimos 15% do progresso dela (--fp-solid, ver
+     initFooterFocus) — a essa altura a mancha já cobre o ecrã quase
+     todo, por isso o "encaixe" final é impercetível, só remove
+     qualquer resquício de transparência. Sem JS (pin desligado —
+     default `, 1)`), fica sempre opaca, mesmo estado final das outras
+     variáveis --fp-*. Só existe no mobile: no desktop a mancha sozinha
+     já cobre tudo com folga (ver .footer__glow, largura/escala bem
+     maiores lá). */
+  .footer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-color: var(--hero-bg);
+    opacity: var(--fp-solid, 1);
+    pointer-events: none;
   }
 }
 

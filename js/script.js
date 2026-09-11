@@ -42,8 +42,8 @@
       'work.items.3.metric': 'Case study',
       'about.eyebrow': 'ABOUT',
       'about.title': 'From blueprints to interfaces.',
-      'about.p1': 'For eight years I led architecture and interior design projects, managing complex timelines, budgets and multidisciplinary teams from brief to delivery. That work built the systemic thinking I now apply to digital products: breaking down ambiguous problems, mapping structure before style, and designing for how people actually use a space, physical or digital.',
-      'about.p2': "In 2024 I co-founded Paparico, where I led end-to-end UX/UI design, from research and journey mapping to interactive prototypes and a measurable increase in conversions. I'm now looking to bring that same rigor to a Product Design team and close collaboration with engineering.",
+      'about.p1': "For eight years, I led architecture and interior design projects, managing teams, budgets and complex timelines. That's where I developed the systemic thinking I now apply to digital design: understanding the problem, structuring before styling, and designing for people.",
+      'about.p2': 'In 2024, I co-founded Paparico, where I led UX/UI projects end to end, from research to prototypes and results. Today, I look to bring that same rigor to a Product Design team, in close collaboration with engineering.',
       'about.stats.0': 'Years of systemic thinking',
       'about.stats.1': 'Years in product design',
       'about.stats.2': 'Conversion increase, real project',
@@ -115,6 +115,12 @@
     } catch (err) {
       /* localStorage indisponível (modo privado, etc.) — ignorar silenciosamente */
     }
+
+    // "ignorar"/"ignore" troca de innerHTML (data-i18n-html acima) —
+    // o .footer__highlight de antes é destruído e recriado, por isso a
+    // mancha do footer (mobile) precisa de remedir a posição dele (ver
+    // positionFooterGlowOrigin, definida mais abaixo).
+    positionFooterGlowOrigin();
   }
 
   function initLanguage() {
@@ -891,6 +897,74 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /* Selected Work (mobile) — sem animação de entrada nem gatilho de     */
+  /* scroll aqui (ver .work-heading.reveal/.work-item.reveal, style.css */
+  /* — desligados nesta secção): todos os trabalhos aparecem juntos,     */
+  /* já no estado final. A única interação é o clique: cada work-item   */
+  /* ganha a sua própria janela de foto por baixo do conteúdo            */
+  /* (.work-item__photo, ver style.css), que abre ao clicar no card.     */
+  /* Acordeão — nunca mais do que uma foto aberta ao mesmo tempo: ao     */
+  /* clicar noutro card, a foto aberta anterior fecha e a nova abre;     */
+  /* clicar no mesmo card fecha-a. Os links continuam a apontar para "#" */
+  /* (placeholder), por isso preventDefault em todos — sem isso o clique */
+  /* saltava a página para o topo. Elementos fora do mobile ficam        */
+  /* display:none (CSS) e esta função nem chega a correr lá.             */
+  /* ------------------------------------------------------------------ */
+  function initWorkPhotoToggle() {
+    if (!window.matchMedia('(max-width: 768px)').matches) return;
+
+    const items = Array.from(document.querySelectorAll('.work-item'));
+    if (items.length === 0) return;
+
+    const links = items.map((item) => item.querySelector('.work-item__link'));
+    const photos = items.map((item) => item.querySelector('.work-item__photo'));
+
+    if (photos.every((photo) => !photo)) return;
+
+    links.forEach((link, index) => {
+      if (!link) return;
+      link.addEventListener('click', (e) => {
+        e.preventDefault();
+        const photo = photos[index];
+        if (!photo) return;
+        const wasOpen = photo.classList.contains('is-open');
+        photos.forEach((p) => p && p.classList.remove('is-open'));
+        if (!wasOpen) photo.classList.add('is-open');
+      });
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* Footer (mobile) — a mancha (.footer__glow) nasce à altura da        */
+  /* palavra "ignorar" (.footer__highlight), não num ponto fixo          */
+  /* (bottom:-10%, pensado para o desktop, onde o título quebra de forma */
+  /* mais previsível), mas centralizada na página no eixo horizontal     */
+  /* (left:50%, ver style.css — não o X da própria palavra, que por o    */
+  /* título ser alinhado à esquerda ficava puxado para a margem). No     */
+  /* mobile a altura da palavra depende do que sobra depois de o título  */
+  /* quebrar em várias linhas — muda com a largura do ecrã e com o       */
+  /* idioma (PT/EN, ver applyLanguage, que troca o innerHTML inteiro do  */
+  /* título e recria o .footer__highlight) — por isso só o TOP é medido  */
+  /* em JS, não fixo em CSS (mesma ideia de initWorkDescPosition).       */
+  /* Procura o elemento de novo a cada chamada, nunca guarda uma         */
+  /* referência antiga (o applyLanguage destrói e cria um novo a cada    */
+  /* troca de idioma). */
+  /* ------------------------------------------------------------------ */
+  function positionFooterGlowOrigin() {
+    if (!window.matchMedia('(max-width: 768px)').matches) return;
+
+    const footer = document.querySelector('.footer');
+    const highlight = document.querySelector('.footer__highlight');
+    if (!footer || !highlight) return;
+
+    const footerRect = footer.getBoundingClientRect();
+    const wordRect = highlight.getBoundingClientRect();
+    const top = wordRect.top - footerRect.top + wordRect.height / 2;
+
+    footer.style.setProperty('--fp-origin-top', `${top}px`);
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Footer — a mancha (.footer__glow) não existe ainda quando o footer  */
   /* fixa, só é revelada depois de o utilizador começar a rolar lá       */
   /* dentro, e cresce devagar, encostada ao fundo, até cobrir o footer   */
@@ -905,22 +979,28 @@
   /* altura extra (.is-pinned), o footer fica sticky lá dentro. A        */
   /* suavidade (scroll-scrub contínuo em vez de passos) é a mesma ideia  */
   /* da secção "we keep our focus on important things" de neutomni.com.  */
-  /* Sem pin (mobile / prefers-reduced-motion), o default de --fp-glow/  */
-  /* --fp-color em CSS já deixa o footer no estado final — nada a fazer  */
-  /* aqui. */
+  /* O pin liga no desktop (≥900px) e também no mobile (≤768px) — só a   */
+  /* faixa estreita do tablet (769-899px) e o prefers-reduced-motion     */
+  /* ficam de fora (ver o media query "Pin desativado" em style.css, que  */
+  /* dá a esses dois casos o título compacto sem o respiro de 100vh).    */
+  /* Sem pin, o default de --fp-glow/--fp-color em CSS já deixa o footer */
+  /* no estado final — nada a fazer aqui. */
   /* ------------------------------------------------------------------ */
   function initFooterFocus() {
     const wrap = document.querySelector('.footer-pin-wrap');
     const footer = document.querySelector('.footer');
     if (!wrap || !footer) return;
 
-    const canPin = window.matchMedia('(min-width: 900px)').matches;
+    const canPin = window.matchMedia('(min-width: 900px), (max-width: 768px)').matches;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
     if (!canPin || reducedMotion) return;
 
     wrap.classList.add('is-pinned');
 
-    const HEADER_OFFSET = 88; // mesmo top: do .footer sticky, ver css/style.css
+    // Mesmo top: do .footer sticky, ver css/style.css — 88px no desktop
+    // (mesma altura do .site-header lá), 72px no mobile (header mais
+    // baixo, ver .site-header no mobile).
+    const HEADER_OFFSET = window.matchMedia('(max-width: 768px)').matches ? 72 : 88;
     const clamp01 = (n) => Math.min(1, Math.max(0, n));
     const ease = (p, start, end) => (end === start ? (p >= end ? 1 : 0) : clamp01((p - start) / (end - start)));
     let ticking = false;
@@ -951,6 +1031,14 @@
       // não só quando já está tudo coberto.
       footer.style.setProperty('--fp-glow', glow.toFixed(3));
       footer.style.setProperty('--fp-color', ease(glow, 0.03, 0.4).toFixed(3));
+      // Só usado no mobile (ver .footer::after, style.css) — camada
+      // sólida sem blur nenhum, que só ganha opacidade nos últimos 15%
+      // do progresso da própria mancha, quando ela já cobre quase todo
+      // o ecrã: garante um preenchimento 100% opaco no fim, sem
+      // depender de a mancha desfocada (que tem sempre alguma
+      // transparência bem perto da própria borda) cobrir os cantos
+      // com exatidão.
+      footer.style.setProperty('--fp-solid', ease(glow, 0.85, 1).toFixed(3));
     }
 
     function syncToScroll() {
@@ -974,7 +1062,438 @@
     // onde a animação realmente começa).
     footer.style.setProperty('--fp-glow', '0');
     footer.style.setProperty('--fp-color', '0');
+    footer.style.setProperty('--fp-solid', '0');
     syncToScroll();
+  }
+
+  /* ==================================================================== */
+  /* A PARTIR DAQUI: só MOBILE — ver princípio gravado em memória         */
+  /* (mobile-only-scope). Nenhuma das duas funções abaixo toca em         */
+  /* initHeroScrollMorph, initSimpleHeaderReveal ou initSimpleAboutReveal */
+  /* (nem nas suas variáveis, nem nos seletores que elas usam:            */
+  /* .is-pinned, .about__title/.about__text/.about__stats, .is-revealed,  */
+  /* .is-visible...) — código e classes de estado completamente à parte   */
+  /* (sufixo "-m"), para o desktop e o fallback de prefers-reduced-motion */
+  /* ficarem garantidamente inalterados, não só "visualmente iguais nos   */
+  /* meus testes". Ver .hero__topline-m/.hero__about-m/.about-m__*        */
+  /* (index.html) e a secção "Responsivo — Mobile" (style.css).           */
+  /* ==================================================================== */
+
+  /* ------------------------------------------------------------------ */
+  /* MOBILE — Sanduíche do header: abre/fecha o painel com a nav +      */
+  /* PT/EN (.site-header__menu-toggle-m/.site-header__menu-m). Corre     */
+  /* sempre (independente do scroll/pin) — abrir/fechar o menu não        */
+  /* depende de initMobileHeroMorph estar ativa.                          */
+  /* ------------------------------------------------------------------ */
+  function initMobileMenu() {
+    const toggle = document.querySelector('.site-header__menu-toggle-m');
+    const menu = document.getElementById('siteHeaderMenuM');
+    const header = document.getElementById('siteHeader');
+    if (!toggle || !menu) return;
+
+    function setOpen(open) {
+      toggle.classList.toggle('is-open-m', open);
+      menu.classList.toggle('is-open-m', open);
+      toggle.setAttribute('aria-expanded', String(open));
+
+      if (!header) return;
+      // O painel em si já nasce opaco (--hero-bg sólido), mas a barra
+      // do header por cima dele, e o texto lá dentro (nav + PT/EN),
+      // acompanham o scroll em alfa contínuo (ver applyProgress em
+      // initMobileHeroMorph) — o sanduíche já é clicável a partir de
+      // meio fade (.is-interactive liga em inP>0.5), por isso dava
+      // para abrir o painel com a barra ainda semi-transparente por
+      // cima (deixando ver a foto por trás) e os links lá dentro ainda
+      // esmaecidos. Com o menu aberto tudo isto fica sempre a 100%.
+      const navEls = menu.querySelectorAll('.site-header__navlinks a');
+      const lang = menu.querySelector('.site-header__lang');
+      if (open) {
+        header.style.backgroundColor = 'rgba(109, 33, 22, 1)';
+        header.style.borderBottomColor = 'rgba(255, 255, 255, 0.15)';
+        navEls.forEach((a) => {
+          a.style.opacity = '1';
+        });
+        if (lang) lang.style.opacity = '1';
+      } else {
+        // Devolve tudo ao valor "verdadeiro" (o do scroll atual) assim
+        // que o painel fecha — recalcula aqui, mesmo cálculo do inP em
+        // applyProgress (initMobileHeroMorph); não dá para chamar essa
+        // função diretamente (fecha sobre variáveis privadas de outra
+        // função), e disparar um scroll sintético não bastaria:
+        // updateProgress só reaplica quando a posição muda de verdade.
+        const wrap = document.getElementById('heroPinWrap');
+        const scrolled = wrap ? -wrap.getBoundingClientRect().top : window.scrollY;
+        const heroP = Math.min(1, Math.max(0, scrolled / window.innerHeight));
+        const inP = Math.min(1, Math.max(0, (heroP - 0.35) / 0.4));
+        header.style.backgroundColor = `rgba(109, 33, 22, ${inP})`;
+        header.style.borderBottomColor = `rgba(255, 255, 255, ${inP * 0.15})`;
+        navEls.forEach((a) => {
+          a.style.opacity = String(inP);
+        });
+        if (lang) lang.style.opacity = String(inP);
+      }
+    }
+
+    toggle.addEventListener('click', () => {
+      setOpen(!menu.classList.contains('is-open-m'));
+    });
+
+    // Fecha ao escolher um link (Trabalho/Sobre/Contacto) ou ao trocar
+    // de idioma — sem isto o painel ficava aberto por cima do conteúdo
+    // depois de já ter navegado para lá.
+    menu.querySelectorAll('a, button').forEach((el) => {
+      el.addEventListener('click', () => setOpen(false));
+    });
+
+    document.addEventListener('keydown', (e) => {
+      if (e.key === 'Escape') setOpen(false);
+    });
+
+    // Toque/clique fora do painel (mas não no próprio botão, que já
+    // trata do seu clique acima) também fecha.
+    document.addEventListener('click', (e) => {
+      if (!menu.classList.contains('is-open-m')) return;
+      if (menu.contains(e.target) || toggle.contains(e.target)) return;
+      setOpen(false);
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
+  /* MOBILE — Hero + Sobre presos, com o mesmo espírito do              */
+  /* initHeroScrollMorph (desktop) mas isolado por completo dele: nome  */
+  /* "morph" (translate+scale) até ao logo do header, "HI, "/"NA"       */
+  /* encolhem, Currículo e a nav (Trabalho/Sobre/Contacto — sem par 1:1 */
+  /* no header, convergem todas para o ícone do sanduíche) desvanecem   */
+  /* ao "pousar", a foto cresce até fullscreen, e o duplicado da secção */
+  /* Sobre (.hero__about-m/.about-m__*, index.html) revela-se por cima  */
+  /* dela em 3 passos EXCLUSIVOS (só um de cada vez, não cumulativo —   */
+  /* sem espaço para 2 colunas como no desktop).                        */
+  /* ------------------------------------------------------------------ */
+  function initMobileHeroMorph() {
+    const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
+    const isMobile = !window.matchMedia('(min-width: 900px)').matches;
+    if (prefersReduced || !isMobile) return;
+
+    const wrap = document.getElementById('heroPinWrap');
+    const hero = document.getElementById('top');
+    const header = document.getElementById('siteHeader');
+    const heroInner = document.querySelector('.hero__inner');
+    const heroName = document.querySelector('.hero__name');
+    const imageBox = document.querySelector('.hero__image');
+    if (!wrap || !hero || !header || !heroInner || !heroName || !imageBox) return;
+
+    const heroNameDrops = document.querySelectorAll('.hero__name-drop');
+    const heroTagline = document.querySelector('.hero__tagline');
+    const heroResume = document.querySelector('.hero__resume');
+    const heroNavLinks = document.querySelectorAll('.hero__navlinks a');
+    const heroHeadline = document.querySelector('.hero__headline');
+    // .hero__status-m (o "Disponível para trabalho" sobreposto à foto,
+    // ver index.html) não tem a classe .hero__meta partilhada de
+    // propósito — reaproveitá-la faria o "display:none" de repouso
+    // (fora do mobile, ver style.css) perder para o "display:flex" da
+    // regra base de .hero__meta (mesma especificidade, ordem no
+    // ficheiro decidia) e o selo passaria a aparecer no desktop
+    // também. Aqui só junta os dois na mesma lista para desvanecerem
+    // juntos.
+    const heroMetas = document.querySelectorAll('.hero__meta, .hero__status-m');
+    const heroBottom = document.querySelector('.hero__bottom');
+    const imageEl = imageBox.querySelector('img');
+
+    const headerLogo = document.querySelector('.site-header__logo');
+    const headerResume = document.querySelector('.site-header__resume');
+    const headerMenuToggle = document.querySelector('.site-header__menu-toggle-m');
+    const headerLangM = document.querySelector('.site-header__menu-m .site-header__lang');
+    const headerNavLinksM = document.querySelectorAll('.site-header__menu-m .site-header__navlinks a');
+
+    // Duplicado da secção Sobre (ver index.html) — classes próprias,
+    // nada partilhado com .about__title/.about__text/.about__stats
+    // (essas continuam só do desktop/fallback, ver initSimpleAboutReveal).
+    const aboutTitle = document.querySelector('.about-m__title');
+    const aboutTextBottom = document.querySelector('.about-m__text--bottom');
+    const aboutTextTop = document.querySelector('.about-m__text--top');
+    const aboutStats = document.querySelector('.about-m__stats');
+
+    wrap.classList.add('is-pinned-m');
+
+    let imgRect0 = null;
+    let dropWidths = [];
+    // Percurso preso dividido em dois troços: 100vh para a foto crescer
+    // (+ transição do header) e mais 210vh (3 troços de about, não 4,
+    // e cada um precisa do seu próprio espaço de scroll para ler-se com
+    // calma, já que substitui o anterior em vez de se somar a ele — ver
+    // updateAboutReveal) depois disso. wrap.style.height soma tudo
+    // (100vh do próprio sticky + estes dois troços) — classe própria
+    // (.is-pinned-m), nunca a altura fixa de .hero-pin-wrap.is-pinned
+    // (desktop, style.css).
+    const revealMultiplier = 2.1;
+    let growRangePx = window.innerHeight;
+    let revealRangePx = window.innerHeight * revealMultiplier;
+    wrap.style.height = `${100 + 100 + revealMultiplier * 100}vh`;
+
+    function measureImageRect() {
+      imageBox.classList.remove('is-growing-m');
+      imageBox.style.position = '';
+      imageBox.style.top = '';
+      imageBox.style.left = '';
+      imageBox.style.width = '';
+      imageBox.style.height = '';
+
+      const heroRect = heroInner.getBoundingClientRect();
+      const boxRect = imageBox.getBoundingClientRect();
+      imgRect0 = {
+        top: boxRect.top - heroRect.top,
+        left: boxRect.left - heroRect.left,
+        width: boxRect.width,
+        height: boxRect.height,
+      };
+      if (heroBottom) heroBottom.style.minHeight = `${boxRect.height}px`;
+    }
+
+    function measureNameDrops() {
+      heroNameDrops.forEach((span) => {
+        span.style.width = '';
+      });
+      dropWidths = Array.from(heroNameDrops).map((span) => span.getBoundingClientRect().width);
+    }
+
+    // Nome -> logo do header (par real, translate+scale) e Currículo
+    // -> Currículo do header (também par real, sempre visível). A nav
+    // não tem par 1:1 no header mobile — os três links convergem para
+    // o MESMO alvo, o ícone do sanduíche, dando a sensação de serem
+    // "recolhidos" para dentro dele.
+    const morphPairs = [];
+    function addMorphPair(from, to) {
+      if (from && to) morphPairs.push({ from, to, transform: null });
+    }
+    addMorphPair(heroName, headerLogo);
+    addMorphPair(heroResume, headerResume);
+    if (headerMenuToggle) {
+      heroNavLinks.forEach((a) => addMorphPair(a, headerMenuToggle));
+    }
+
+    function measureMorphPairs() {
+      morphPairs.forEach((pair) => {
+        const prevTransform = pair.from.style.transform;
+        pair.from.style.transform = 'none';
+        const fromRect = pair.from.getBoundingClientRect();
+        const fromFontSize = parseFloat(getComputedStyle(pair.from).fontSize) || 1;
+        const toFontSize = parseFloat(getComputedStyle(pair.to).fontSize) || fromFontSize;
+        const toRect = pair.to.getBoundingClientRect();
+        pair.transform = {
+          tx: toRect.left - fromRect.left,
+          ty: toRect.top - fromRect.top,
+          scale: toFontSize / fromFontSize,
+        };
+        pair.from.style.transform = prevTransform;
+      });
+    }
+
+    measureImageRect();
+    measureNameDrops();
+    measureMorphPairs();
+
+    const clamp01 = (n) => Math.min(1, Math.max(0, n));
+    const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+    const ease = (p, start, end) => (end === start ? (p >= end ? 1 : 0) : clamp01((p - start) / (end - start)));
+    const lerp = (a, b, t) => a + (b - a) * t;
+
+    const IMG_HEAD_TOP_PX = 590;
+    const IMG_HEAD_ROOM_PX = 100;
+
+    function targetObjectPositionY(boxWidth, boxHeight) {
+      if (!imageEl || !imageEl.naturalWidth || !imageEl.naturalHeight) return 58;
+      const scale = Math.max(boxWidth / imageEl.naturalWidth, boxHeight / imageEl.naturalHeight);
+      const excess = imageEl.naturalHeight * scale - boxHeight;
+      if (excess <= 0) return 50;
+      const offset = clamp(IMG_HEAD_TOP_PX * scale - IMG_HEAD_ROOM_PX, 0, excess);
+      return (offset / excess) * 100;
+    }
+
+    let ticking = false;
+    let lastProgress = -1;
+
+    function applyProgress(p) {
+      const outP = ease(p, 0, 0.45);
+      const inP = ease(p, 0.35, 0.75);
+      const outOpacity = 1 - outP;
+      const riseY = outP * -40;
+      const handoffIn = ease(p, 0.46, 0.5);
+
+      morphPairs.forEach((pair) => {
+        if (!pair.transform) return;
+        const tx = lerp(0, pair.transform.tx, outP);
+        const ty = lerp(0, pair.transform.ty, outP);
+        const s = lerp(1, pair.transform.scale, outP);
+        pair.from.style.transform = `translate(${tx}px, ${ty}px) scale(${s})`;
+        pair.from.style.transformOrigin = 'top left';
+        pair.from.style.opacity = String(1 - handoffIn);
+      });
+
+      const dropP = ease(outP, 0, 0.2);
+      heroNameDrops.forEach((span, i) => {
+        span.classList.toggle('is-collapsing', dropP > 0);
+        if (dropP > 0) {
+          const w = dropWidths[i] || 0;
+          span.style.width = `${w * (1 - dropP)}px`;
+        } else {
+          span.style.width = '';
+        }
+        span.style.opacity = String(1 - dropP);
+      });
+
+      if (heroTagline) {
+        heroTagline.style.opacity = String(outOpacity);
+        heroTagline.style.transform = `translateY(${riseY}px)`;
+      }
+      if (heroHeadline) heroHeadline.style.opacity = String(outOpacity);
+      heroMetas.forEach((m) => {
+        m.style.opacity = String(outOpacity);
+      });
+
+      header.style.backgroundColor = `rgba(109, 33, 22, ${inP})`;
+      header.style.borderBottomColor = `rgba(255, 255, 255, ${inP * 0.15})`;
+      header.classList.toggle('is-interactive', inP > 0.5);
+
+      if (headerLogo) headerLogo.style.opacity = String(handoffIn);
+      if (headerResume) headerResume.style.opacity = String(handoffIn);
+      if (headerMenuToggle) headerMenuToggle.style.opacity = String(handoffIn);
+      if (headerLangM) headerLangM.style.opacity = String(inP);
+      headerNavLinksM.forEach((a) => {
+        a.style.opacity = String(inP);
+      });
+    }
+
+    let lastGrowP = -1;
+
+    function updateImagePin(growP) {
+      if (!imgRect0 || growP === lastGrowP) return;
+      lastGrowP = growP;
+
+      if (growP <= 0) {
+        if (imageBox.classList.contains('is-growing-m')) {
+          imageBox.classList.remove('is-growing-m');
+          imageBox.style.position = '';
+          imageBox.style.top = '';
+          imageBox.style.left = '';
+          imageBox.style.width = '';
+          imageBox.style.height = '';
+          if (imageEl) imageEl.style.objectPosition = '';
+        }
+        return;
+      }
+
+      if (!imageBox.classList.contains('is-growing-m')) {
+        imageBox.classList.add('is-growing-m');
+        imageBox.style.position = 'absolute';
+      }
+
+      const heroInnerRect = heroInner.getBoundingClientRect();
+      const heroRect = hero.getBoundingClientRect();
+      const headerHeight = header.offsetHeight;
+      const targetTop = heroRect.top - heroInnerRect.top + headerHeight;
+      const targetLeft = heroRect.left - heroInnerRect.left;
+      const targetHeight = heroRect.height - headerHeight;
+
+      imageBox.style.top = `${lerp(imgRect0.top, targetTop, growP)}px`;
+      imageBox.style.left = `${lerp(imgRect0.left, targetLeft, growP)}px`;
+      imageBox.style.width = `${lerp(imgRect0.width, heroRect.width, growP)}px`;
+      imageBox.style.height = `${lerp(imgRect0.height, targetHeight, growP)}px`;
+      if (imageEl) imageEl.style.objectPosition = `center ${lerp(0, targetObjectPositionY(heroRect.width, targetHeight), growP)}%`;
+    }
+
+    // Revelação em 3 passos EXCLUSIVOS (ao contrário do desktop,
+    // cumulativo): só um dos três (texto de baixo, texto de cima,
+    // números) fica visível de cada vez, sobrepostos no mesmo lugar
+    // (ver .about-m__text/.about-m__stats, style.css) — o scroll TROCA
+    // qual está revelado. O título aparece já no primeiro troço e fica.
+    function updateAboutReveal(scrolled) {
+      const swapEls = [aboutTextBottom, aboutTextTop, aboutStats];
+      // .is-active-m liga a auréola clara por trás do texto — vive em
+      // .hero__image (ver ::after em style.css), não em .hero__about-m,
+      // para se mover/encolher junto com a foto (herda o mesmo
+      // top/left/width/height animado por updateImagePin) em vez de
+      // ficar presa a uma posição fixa no ecrã enquanto a foto já
+      // mudou de tamanho por baixo dela. Sem isto ela ficava sempre
+      // ligada assim que a página abre (.is-pinned-m liga logo ao
+      // carregar, bem antes de haver scroll ou texto nenhum para
+      // iluminar), "engolindo" a foto/fundo vinho da Hero num degradê a
+      // branco visível mesmo em repouso.
+      if (imageBox) imageBox.classList.toggle('is-active-m', scrolled >= growRangePx);
+      if (scrolled < growRangePx) {
+        if (aboutTitle) aboutTitle.classList.remove('is-shown-m');
+        swapEls.forEach((el) => el && el.classList.remove('is-shown-m'));
+        return;
+      }
+      if (aboutTitle) aboutTitle.classList.add('is-shown-m');
+      const aboutP = clamp01((scrolled - growRangePx) / revealRangePx);
+      const activeIndex = Math.min(swapEls.length - 1, Math.floor(aboutP * swapEls.length));
+      swapEls.forEach((el, i) => {
+        if (el) el.classList.toggle('is-shown-m', i === activeIndex);
+      });
+    }
+
+    function updateProgress() {
+      ticking = false;
+      if (wrap.offsetHeight <= window.innerHeight) return;
+
+      const scrolled = -wrap.getBoundingClientRect().top;
+      const heroP = clamp01(scrolled / growRangePx);
+
+      updateImagePin(heroP);
+      updateAboutReveal(scrolled);
+
+      if (Math.abs(heroP - lastProgress) < 0.001) return;
+      lastProgress = heroP;
+
+      header.classList.add('is-scrubbing');
+      applyProgress(heroP);
+    }
+
+    function onScroll() {
+      if (!ticking) {
+        ticking = true;
+        requestAnimationFrame(updateProgress);
+      }
+    }
+
+    window.addEventListener('scroll', onScroll, { passive: true });
+    window.addEventListener('resize', () => {
+      growRangePx = window.innerHeight;
+      revealRangePx = window.innerHeight * revealMultiplier;
+      measureImageRect();
+      measureNameDrops();
+      measureMorphPairs();
+      lastProgress = -1;
+      lastGrowP = -1;
+      updateProgress();
+    });
+
+    // O link "Sobre" (Hero e o do painel do sanduíche, ambos
+    // href="#sobre") aponta para dentro da própria Hero — a navegação
+    // nativa por âncora pousaria só no topo dela (ou nem isso, o
+    // duplicado mobile não tem id="sobre" — ver index.html); aqui
+    // calcula-se o ponto exato do percurso preso em que o primeiro
+    // texto já revelou e rola-se até lá.
+    document.querySelectorAll('a[href="#sobre"]').forEach((a) => {
+      a.addEventListener('click', (e) => {
+        e.preventDefault();
+        const wrapTop = wrap.getBoundingClientRect().top + window.scrollY;
+        window.scrollTo({ top: wrapTop + growRangePx + revealRangePx * 0.08, behavior: 'smooth' });
+      });
+    });
+
+    updateProgress();
+
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(() => {
+        measureImageRect();
+        measureNameDrops();
+        measureMorphPairs();
+        lastProgress = -1;
+        lastGrowP = -1;
+        updateProgress();
+      });
+    }
   }
 
   /* ------------------------------------------------------------------ */
@@ -983,10 +1502,25 @@
     initHeroClock();
     initHeadlineAlign();
     initHeroScrollMorph();
+    initMobileMenu();
+    initMobileHeroMorph();
     initScrollReveal();
     initWorkDescPosition();
     initWorkScrub();
     initWorkCursor();
+    initWorkPhotoToggle();
     initFooterFocus();
+
+    // positionFooterGlowOrigin também é chamada por applyLanguage (mais
+    // acima) sempre que o PT/EN troca o innerHTML de "ignorar" — aqui só
+    // liga a medição inicial e os dois gatilhos que fazem o layout mudar
+    // sem passar por applyLanguage: redimensionar a janela e a fonte do
+    // título (var(--font-display)) acabar de carregar (pode reflowar o
+    // texto depois da 1ª medição).
+    positionFooterGlowOrigin();
+    window.addEventListener('resize', positionFooterGlowOrigin);
+    if (document.fonts && document.fonts.ready) {
+      document.fonts.ready.then(positionFooterGlowOrigin);
+    }
   });
 })();

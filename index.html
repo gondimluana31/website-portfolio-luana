@@ -31,19 +31,34 @@
       <a href="#top" class="site-header__logo" aria-label="Luana Gondim — página inicial"><em>I'm</em> LUA</a>
 
       <nav class="site-header__nav" aria-label="Navegação principal">
-        <div class="site-header__navlinks">
-          <a href="#trabalho">Trabalho</a>
-          <a href="#sobre">Sobre</a>
-          <a href="#contacto">Contacto</a>
-        </div>
+        <!-- .site-header__menu-m agrupa nav+idioma só para o painel do
+             sanduíche no MOBILE (ver css/style.css e initMobileMenu,
+             js/script.js, ambos isolados do desktop) — no desktop é
+             display:contents (regra sem media query, sempre ativa),
+             os dois continuam itens soltos de .site-header__nav como
+             sempre, layout/comportamento desktop inalterados. -->
+        <div class="site-header__menu-m" id="siteHeaderMenuM">
+          <div class="site-header__navlinks">
+            <a href="#trabalho">Trabalho</a>
+            <a href="#sobre">Sobre</a>
+            <a href="#contacto">Contacto</a>
+          </div>
 
-        <div class="site-header__lang" role="group" aria-label="Selecionar idioma">
-          <button type="button" class="site-header__lang-btn is-active" data-lang="pt" aria-pressed="true">PT</button>
-          <span aria-hidden="true">/</span>
-          <button type="button" class="site-header__lang-btn" data-lang="en" aria-pressed="false">EN</button>
+          <div class="site-header__lang" role="group" aria-label="Selecionar idioma">
+            <button type="button" class="site-header__lang-btn is-active" data-lang="pt" aria-pressed="true">PT</button>
+            <span aria-hidden="true">/</span>
+            <button type="button" class="site-header__lang-btn" data-lang="en" aria-pressed="false">EN</button>
+          </div>
         </div>
 
         <a href="assets/cv-luana-gondim.pdf" class="site-header__resume" download>Currículo ↗</a>
+
+        <!-- Sanduíche — só existe visualmente no mobile (display:none
+             fora do breakpoint, ver style.css); abre/fecha
+             .site-header__menu-m (ver initMobileMenu, js/script.js). -->
+        <button type="button" class="site-header__menu-toggle-m" aria-expanded="false" aria-controls="siteHeaderMenuM" aria-label="Abrir menu">
+          <span class="site-header__menu-icon-m" aria-hidden="true"></span>
+        </button>
       </nav>
     </div>
   </header>
@@ -56,24 +71,56 @@
     <div class="hero-pin-wrap" id="heroPinWrap">
       <section class="hero" id="top">
         <div class="container hero__inner">
-          <h1 class="hero__name"><span class="hero__name-drop">HI, </span><em> I'm</em> LUA<span class="hero__name-drop">NA</span></h1>
+          <!-- O <br> só quebra no MOBILE (display:none por omissão,
+               ver css/style.css) — força "HI, I'm" / "LUANA" em duas
+               linhas sempre no mesmo sítio, em vez de depender do
+               reflow orgânico (que muda com o tamanho de fonte/ecrã).
+               No desktop fica sem efeito nenhum — nowrap continua a
+               mandar, como sempre. -->
+          <h1 class="hero__name"><span class="hero__name-drop">HI, </span><em> I'm</em><br class="hero__name-break-m"> LUA<span class="hero__name-drop">NA</span></h1>
 
           <div class="hero__navrow">
-            <p class="hero__tagline">Product Design &amp; UX/UI Designer</p>
+            <!-- .hero__topline-m agrupa tagline+currículo só para o
+                 reflow do MOBILE (tagline+botão no topo, nav por baixo
+                 do nome — ver css/style.css e initMobileHeroMorph,
+                 js/script.js, ambos isolados de initHeroScrollMorph).
+                 No desktop é display:contents (regra sem media query),
+                 os dois continuam itens soltos de .hero__navrow como
+                 sempre. -->
+            <div class="hero__topline-m">
+              <p class="hero__tagline">Product &amp; UX/UI Designer</p>
+              <a href="assets/cv-luana-gondim.pdf" class="hero__resume" download>Currículo ↗</a>
+            </div>
             <nav class="hero__navlinks" aria-label="Navegação principal">
               <a href="#trabalho">Trabalho</a>
               <a href="#sobre" id="navSobre">Sobre</a>
               <a href="#contacto">Contacto</a>
             </nav>
-            <a href="assets/cv-luana-gondim.pdf" class="hero__resume" download>Currículo ↗</a>
           </div>
 
           <div class="hero__intro">
-            <p class="hero__headline">Desenho produtos digitais com o rigor de quem já desenhou edifícios.</p>
+            <!-- Os dois <br> só quebram no MOBILE (display:none por
+                 omissão, ver css/style.css) — garantem sempre 3 linhas
+                 no mesmo sítio, em vez de depender do reflow orgânico.
+                 Sem efeito no desktop, que já quebra sozinho onde
+                 calha (largura bem maior, sem indentação nenhuma). -->
+            <p class="hero__headline">Desenho produtos digitais<br class="hero__headline-break-m"> com o rigor de quem já<br class="hero__headline-break-m"> desenhou edifícios.</p>
           </div>
 
           <div class="hero__bottom">
             <span class="hero__meta" id="heroClock"></span>
+            <!-- Duplicado do "Disponível para trabalho" só para o
+                 MOBILE (ver css/style.css) — hora/data (#heroClock) e
+                 o .hero__meta--status original ficam escondidos nesse
+                 breakpoint (display:none). Elemento à parte (não
+                 dentro de .hero__image) de propósito — fica numa linha
+                 própria por cima da foto, não sobreposto a ela — sem
+                 mexer no DOM que o desktop usa (clock + foto + status,
+                 3 itens numa fila só). -->
+            <span class="hero__status-m">
+              <span class="hero__status-dot" aria-hidden="true"></span>
+              Disponível para trabalho
+            </span>
             <div class="hero__image">
               <img src="assets/images/hero-arquitetura.jpg" width="644" height="323" loading="eager" alt="Fachada arquitetónica fotografada em diagonal, ligando o percurso de arquitetura de Luana ao design digital">
             </div>
@@ -91,11 +138,11 @@
           <div class="about__overlay container">
             <div class="about__row about__row--top">
               <h2 class="about__title">De plantas<br><em>a interface.</em></h2>
-              <p class="about__text about__text--top" data-i18n="about.p2">Em 2024 cofundei a Paparico, onde liderei o design UX/UI de ponta a ponta, da investigação e mapeamento de jornada a protótipos interativos e um aumento mensurável nas conversões. Procuro agora trazer esse mesmo rigor para uma equipa de Product Design e colaboração próxima com engenharia.</p>
+              <p class="about__text about__text--top" data-i18n="about.p2">Em 2024, cofundei a Paparico, onde liderei projetos de UX/UI de ponta a ponta, da investigação aos protótipos e resultados. Hoje, procuro levar esse rigor para uma equipa de Product Design, em colaboração próxima com engenharia.</p>
             </div>
 
             <div class="about__row about__row--bottom">
-              <p class="about__text about__text--bottom" data-i18n="about.p1">Durante oito anos liderei projetos de arquitetura e design de interiores, geri cronogramas complexos, orçamentos e equipas multidisciplinares, do briefing à entrega. Esse trabalho construiu o pensamento sistémico que hoje aplico a produtos digitais: decompor problemas ambíguos, mapear estrutura antes do estilo, e desenhar para a forma como as pessoas realmente usam um espaço, físico ou digital.</p>
+              <p class="about__text about__text--bottom" data-i18n="about.p1">Durante oito anos, liderei projetos de arquitetura e interiores, gerindo equipas, orçamentos e cronogramas complexos. Foi aí que desenvolvi um pensamento sistémico que hoje aplico ao design digital: compreender o problema, estruturar antes de estilizar e desenhar para as pessoas.</p>
 
               <dl class="stats about__stats">
                 <div class="stat">
@@ -112,6 +159,42 @@
                 </div>
               </dl>
             </div>
+          </div>
+        </div>
+
+        <!-- Duplicado do bloco "Sobre" acima, só para o MOBILE (ver
+             .hero__about-m em css/style.css e initMobileHeroMorph em
+             js/script.js — nenhum dos dois toca no bloco original
+             .hero__about nem em initHeroScrollMorph/
+             initSimpleAboutReveal, isolamento total do desktop).
+             Existe como cópia à parte, com classes próprias, porque o
+             observer do fallback simples (initSimpleAboutReveal) já
+             está de olho nos elementos .about__title/.about__text/
+             .about__stats originais — reutilizá-los aqui revelaria os
+             quatro de repente assim que entrassem no viewport pinado,
+             estragando a revelação em 3 passos exclusivos do mobile
+             (só um de cada vez). Mesmo texto (data-i18n repetidos de
+             propósito — o PT/EN atualiza os dois em conjunto), css
+             escondida fora do breakpoint mobile. -->
+        <div class="hero__about-m">
+          <div class="about-m__overlay container">
+            <h2 class="about-m__title">De plantas<br><em>a interface.</em></h2>
+            <p class="about-m__text about-m__text--bottom" data-i18n="about.p1">Durante oito anos, liderei projetos de arquitetura e interiores, gerindo equipas, orçamentos e cronogramas complexos. Foi aí que desenvolvi um pensamento sistémico que hoje aplico ao design digital: compreender o problema, estruturar antes de estilizar e desenhar para as pessoas.</p>
+            <p class="about-m__text about-m__text--top" data-i18n="about.p2">Em 2024, cofundei a Paparico, onde liderei projetos de UX/UI de ponta a ponta, da investigação aos protótipos e resultados. Hoje, procuro levar esse rigor para uma equipa de Product Design, em colaboração próxima com engenharia.</p>
+            <dl class="about-m__stats">
+              <div class="stat">
+                <dt class="stat__num">8+</dt>
+                <dd class="stat__label" data-i18n="about.stats.0">Anos de pensamento sistémico</dd>
+              </div>
+              <div class="stat">
+                <dt class="stat__num">2</dt>
+                <dd class="stat__label" data-i18n="about.stats.1">Anos em product design</dd>
+              </div>
+              <div class="stat">
+                <dt class="stat__num">+15%</dt>
+                <dd class="stat__label" data-i18n="about.stats.2">Aumento de conversão, projeto real</dd>
+              </div>
+            </dl>
           </div>
         </div>
       </section>
@@ -184,6 +267,9 @@
                     <span class="metric__value" data-i18n="work.items.0.metric">+15% conversões</span>
                     <span class="metric__link" data-i18n="work.viewProject">Ver projeto →</span>
                   </span>
+                  <!-- Só visível no mobile (ver .work-item__photo, style.css) —
+                       janela de foto do card, abre com o scroll (initWorkPhotoReveal, js/script.js). -->
+                  <span class="work-item__photo" aria-hidden="true"><img src="assets/images/paparico.png" loading="lazy" alt=""></span>
                 </a>
               </li>
 
@@ -204,6 +290,7 @@
                     <span class="metric__value" data-i18n="work.items.1.metric">4h/dia poupadas</span>
                     <span class="metric__link" data-i18n="work.viewProject">Ver projeto →</span>
                   </span>
+                  <span class="work-item__photo" aria-hidden="true"><img src="assets/images/saaspaparico.png" loading="lazy" alt=""></span>
                 </a>
               </li>
 
@@ -224,6 +311,7 @@
                     <span class="metric__value" data-i18n="work.items.2.metric">Estudo de caso</span>
                     <span class="metric__link" data-i18n="work.viewProject">Ver projeto →</span>
                   </span>
+                  <span class="work-item__photo" aria-hidden="true"><img src="assets/images/projeto%20nos.png" loading="lazy" alt=""></span>
                 </a>
               </li>
 
@@ -244,6 +332,7 @@
                     <span class="metric__value" data-i18n="work.items.3.metric">Estudo de caso</span>
                     <span class="metric__link" data-i18n="work.viewProject">Ver projeto →</span>
                   </span>
+                  <span class="work-item__photo" aria-hidden="true"><img src="assets/images/apoia.png" loading="lazy" alt=""></span>
                 </a>
               </li>
             </ul>
