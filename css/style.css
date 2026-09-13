@@ -96,10 +96,18 @@ button {
   --ease: cubic-bezier(0.4, 0, 0.2, 1);
 }
 
-/* Abaixo de 900px (ou com prefers-reduced-motion) a Hero deixa de ter o
-   pin/scroll morph — mesmo limiar usado em .hero__about (ver linhas
-   675 e 1161) — por isso a margem fluida dá lugar a valores fixos. */
-@media (max-width: 899px), (prefers-reduced-motion: reduce) {
+/* Abaixo de 1366px (ou com prefers-reduced-motion) a Hero deixa de ter
+   o pin/scroll morph — mesmo limiar usado em .hero__about e em
+   initHeroScrollMorph/js/script.js — por isso a margem fluida dá
+   lugar a valores fixos. Inclui a faixa iPad Air/Pro (FASE 1,
+   769-1365px, ver bloco "Responsivo — iPad Air / iPad Pro"), que usa
+   o mesmo modelo mobile — gutter=40 fixo é parte desse modelo. iPad
+   Pro em paisagem (1366px de largura) ficou de fora de propósito
+   (2026-09-13): nesse tamanho o site passa a usar o desktop "de
+   verdade" (mesmo código de ≥1620px, incluindo a margem fluida — só o
+   Work continua no estilo mobile aí, ver o bloco "Responsivo —
+   Tablet", max-width:1619px). */
+@media (max-width: 1365px), (prefers-reduced-motion: reduce) {
   :root {
     --gutter: 40px;
   }
@@ -428,6 +436,11 @@ button:focus-visible,
   .site-header__navlinks {
     gap: 20px;
   }
+
+  .hero__name-break-m,
+  .hero__headline-break-m {
+    display: none;
+  }
 }
 
 @media (max-width: 640px) {
@@ -729,20 +742,22 @@ button:focus-visible,
 
 /* Texto da secção Sobre, sobreposto à MESMA foto da Hero (nenhuma
    segunda imagem) — ver updateAboutReveal em initHeroScrollMorph. Nos
-   ecrãs/condições em que o pin corre (>=900px e sem
-   prefers-reduced-motion — mesmo gate de initHeroScrollMorph/canPin),
+   ecrãs/condições em que o pin corre (>=1366px e sem
+   prefers-reduced-motion — mesmo gate de initHeroScrollMorph/canPin,
+   inclui iPad Pro em paisagem, ver comentário em --gutter),
    fica em cima da foto crescida, ocupando a Hero inteira; fora disso
-   cai no fluxo normal, depois do conteúdo da Hero, como uma secção
-   comum (initSimpleAboutReveal). Sem elementos interativos lá dentro,
-   por isso pode ignorar cliques sempre — não bloqueia a nav/links da
-   Hero por baixo enquanto ainda está invisível. */
+   (mobile e iPad Air/Pro em retrato, ≤1365px — ver bloco "Responsivo —
+   iPad Air / iPad Pro") cai no fluxo normal / escondido, como uma
+   secção comum (initSimpleAboutReveal). Sem elementos interativos lá
+   dentro, por isso pode ignorar cliques sempre — não bloqueia a
+   nav/links da Hero por baixo enquanto ainda está invisível. */
 .hero__about {
   position: relative;
   z-index: 3;
   pointer-events: none;
 }
 
-@media (min-width: 900px) and (prefers-reduced-motion: no-preference) {
+@media (min-width: 1366px) and (prefers-reduced-motion: no-preference) {
   .hero__about {
     position: absolute;
     inset: 0;
@@ -1038,13 +1053,14 @@ button:focus-visible,
   border: 0;
 }
 
-/* Janela de foto de cada work-item — só existe no mobile (ver
-   @media max-width:768px, "Responsivo — Mobile"): no desktop e no
-   tablet a pré-visualização já vem pela coluna direita/scroll-scrub
-   (.work-layout__right, a partir de 1440px — initWorkScrub), que aqui
+/* Janela de foto de cada work-item — existe no mobile e em toda a
+   faixa intermediária de tablet/laptop, ≤1619px (ver blocos
+   "Responsivo — Mobile" e "Responsivo — Intermediário"): só no
+   desktop de verdade (≥1620px) a pré-visualização já vem pela coluna
+   direita/scroll-scrub (.work-layout__right, initWorkScrub), que aqui
    fica sempre oculta (ver regra em max-width:1619px), por isso o
    card ganha a sua própria imagem por baixo. Oculta por omissão para
-   nunca aparecer fora do mobile. */
+   nunca aparecer no desktop de verdade. */
 .work-item__photo {
   display: none;
 }
@@ -1652,6 +1668,27 @@ button:focus-visible,
   }
 }
 
+/* Timeline — mesma correção do mobile (ver .timeline__entry em
+   @media max-width:768px, "Responsivo — Mobile"), duplicada aqui só
+   para a faixa mais estreita do tablet (769-899px): .timeline__role
+   tem white-space:nowrap + flex-shrink:0 (nunca quebra nem encolhe),
+   então nessa largura ela "come" espaço demais e empurra
+   .timeline__org para uma coluna estreita demais, quebrando em várias
+   linhas de forma inconsistente entre entradas (zigue-zague). A
+   partir de 900px já sobra espaço suficiente para a linha original
+   (regra base, sem overrides aqui). */
+@media (min-width: 769px) and (max-width: 899px) {
+  .timeline__entry {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .timeline__sep {
+    display: none;
+  }
+}
+
 /* ==========================================================================
    Responsivo — Tablet
    ========================================================================== */
@@ -1676,7 +1713,6 @@ button:focus-visible,
 
   .work-layout__left {
     width: auto;
-    max-width: 557px;
     justify-content: flex-start;
   }
 
@@ -1710,6 +1746,54 @@ button:focus-visible,
   /* Sem espaço para garantir uma linha só — volta a quebrar normalmente. */
   .work-item__content h3 {
     white-space: normal;
+  }
+}
+
+/* ==========================================================================
+   Responsivo — Intermediário (769–1619px): sem a coluna de preview
+   nem o scroll-scrub (ver bloco acima), esta faixa ficava sem NENHUMA
+   imagem de projeto — mesmo conceito já aprovado para o mobile (janela
+   de foto que abre ao clicar, ver ".work-item__photo" no bloco
+   "Responsivo — Mobile", initWorkPhotoToggle em js/script.js), mas
+   duplicado aqui, não partilhado: o bloco mobile fica congelado
+   (max-width:768px, ver memória de escopo do projeto) e não deve ter o
+   seu limiar alargado nem ser reaproveitado por um seletor mais amplo.
+   ========================================================================== */
+@media (min-width: 769px) and (max-width: 1619px) {
+  .work-item__link {
+    flex-wrap: wrap;
+  }
+
+  .work-item__content {
+    flex-basis: 100%;
+  }
+
+  .work-item__photo {
+    display: grid;
+    flex-basis: 100%;
+    grid-template-rows: 0fr;
+    margin-top: 0;
+    overflow: hidden;
+    transition: grid-template-rows 0.7s var(--ease), margin-top 0.7s var(--ease);
+  }
+
+  .work-item__photo img {
+    overflow: hidden;
+    min-height: 0;
+    opacity: 0;
+    transform: scale(1.12);
+    transition: opacity 0.6s var(--ease), transform 0.9s var(--ease);
+  }
+
+  .work-item__photo.is-open {
+    grid-template-rows: 1fr;
+    margin-top: 20px;
+  }
+
+  .work-item__photo.is-open img {
+    opacity: 1;
+    transform: scale(1);
+    transition-delay: 0.15s;
   }
 }
 
@@ -1768,6 +1852,488 @@ button:focus-visible,
 
   .stats {
     gap: 28px;
+  }
+}
+
+/* ==========================================================================
+   Responsivo — iPad Air / iPad Pro (769–1365px, retrato — ver nota)
+
+   FASE 1 do plano por janelas de tamanho (2026-09-11): esta faixa passa
+   a usar o MESMO modelo já aprovado do mobile (ver bloco "Responsivo —
+   Mobile" logo abaixo) — cabeçalho sanduíche, nome da Hero quebrado em
+   2 linhas, Sobre sobreposto à foto (.hero__about-m), Work com foto ao
+   clicar, Skills em carrossel, Timeline empilhada, Footer com pin e
+   mancha no estilo mobile. É uma cópia deliberada dos MESMOS valores
+   (não um redesenho) — ver [[mobile-only-scope]] na memória do
+   projeto: duplicado num bloco próprio, nunca alargando o
+   max-width:768px do bloco mobile em si (esse continua congelado,
+   intocado). Qualquer edição futura nesta faixa deve espelhar a
+   mudança equivalente no bloco mobile (ou vice-versa) manualmente —
+   não há nada partilhado entre os dois de propósito.
+
+   NOTA 2026-09-13: originalmente ia até 1366px (retrato E paisagem do
+   iPad Pro), mas o iPad Pro em paisagem (1366px de largura) relatado
+   como "num limbo" — nem mobile nem desktop direito, sem as animações
+   do header/foto — foi tirado daqui de propósito e passa a usar o
+   desktop de verdade (≥1366px agora, ver .hero__about/canPin). Só
+   1365px pra baixo (que cobre o iPad Pro em RETRATO, 1024px, e o iPad
+   Air nos dois sentidos, 820/1180px) continua neste bloco.
+
+   .hero__about (o "Sobre" do desktop, texto normal em vez de
+   sobreposto à foto) é escondido aqui — só .hero__about-m aparece,
+   igual ao mobile.
+   ========================================================================== */
+@media (min-width: 769px) and (max-width: 1365px) {
+  /* ---- Hero: mesma reordenação/quebra do nome do mobile ---- */
+  .hero__inner {
+    padding-block: 40px 32px;
+  }
+
+  .hero__navrow {
+    display: contents;
+  }
+
+  .hero__topline-m {
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 16px;
+    width: 100%;
+    order: -3;
+  }
+
+  .hero__name {
+    order: -2;
+    white-space: normal;
+    font-size: clamp(4.5rem, 32vw, 8.5rem);
+    margin-bottom: 20px;
+  }
+
+  .hero__name-break-m {
+    display: inline;
+  }
+
+  .hero__name-drop {
+    display: inline;
+    white-space: normal;
+  }
+
+  .hero__navlinks {
+    order: -1;
+    width: 100%;
+    justify-content: space-between;
+  }
+
+  .hero__resume {
+    margin-right: 0;
+    border: 1px solid var(--text-inverse);
+  }
+
+  .hero__intro {
+    margin-top: 24px;
+  }
+
+  .hero__headline {
+    font-size: 28px;
+    max-width: none;
+    text-align: left;
+    margin-left: 18%;
+  }
+
+  .hero__headline-break-m {
+    display: inline;
+  }
+
+  .hero__bottom {
+    margin-top: auto;
+  }
+
+  .hero__image {
+    order: -1;
+    flex-basis: 100%;
+    max-width: none;
+    margin-inline: 0;
+    position: relative;
+  }
+
+  .hero__image.is-growing-m {
+    margin: 0;
+    max-width: none;
+    will-change: top, left, width, height;
+  }
+
+  #heroClock,
+  .hero__bottom > .hero__meta--status {
+    display: none;
+  }
+
+  .hero__status-m {
+    order: -2;
+    flex-basis: 100%;
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    margin-bottom: 16px;
+    font-size: 0.9375rem;
+    color: var(--text-inverse);
+    white-space: nowrap;
+  }
+
+  /* ---- Cabeçalho: mesmo sanduíche do mobile (ver initMobileMenu) ---- */
+  .site-header {
+    height: 72px;
+  }
+
+  .site-header__nav {
+    gap: 12px;
+  }
+
+  .site-header__menu-toggle-m {
+    display: inline-flex;
+    flex-shrink: 0;
+    align-items: center;
+    justify-content: center;
+    width: 32px;
+    height: 32px;
+    margin-right: -6px;
+    opacity: 0;
+    transition: opacity 0.4s var(--ease);
+  }
+
+  .site-header.is-visible .site-header__menu-toggle-m {
+    opacity: 1;
+  }
+
+  .site-header__menu-icon-m,
+  .site-header__menu-icon-m::before,
+  .site-header__menu-icon-m::after {
+    display: block;
+    width: 20px;
+    height: 1.5px;
+    background-color: var(--text-inverse);
+    transition: transform 0.25s var(--ease), opacity 0.2s var(--ease);
+  }
+
+  .site-header__menu-icon-m {
+    position: relative;
+  }
+
+  .site-header__menu-icon-m::before,
+  .site-header__menu-icon-m::after {
+    content: '';
+    position: absolute;
+    left: 0;
+  }
+
+  .site-header__menu-icon-m::before {
+    top: -6px;
+  }
+
+  .site-header__menu-icon-m::after {
+    top: 6px;
+  }
+
+  .site-header__menu-toggle-m.is-open-m .site-header__menu-icon-m {
+    background-color: transparent;
+  }
+
+  .site-header__menu-toggle-m.is-open-m .site-header__menu-icon-m::before {
+    top: 0;
+    transform: rotate(45deg);
+  }
+
+  .site-header__menu-toggle-m.is-open-m .site-header__menu-icon-m::after {
+    top: 0;
+    transform: rotate(-45deg);
+  }
+
+  .site-header__menu-m {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 28px;
+    position: fixed;
+    top: 72px;
+    left: 0;
+    right: 0;
+    background-color: var(--hero-bg);
+    border-bottom: 1px solid rgba(255, 255, 255, 0.15);
+    padding: 28px var(--gutter) 32px;
+    opacity: 0;
+    transform: translateY(-8px);
+    pointer-events: none;
+    transition: opacity 0.25s var(--ease), transform 0.25s var(--ease);
+  }
+
+  .site-header__menu-m.is-open-m {
+    opacity: 1;
+    transform: none;
+    pointer-events: auto;
+  }
+
+  .site-header__menu-m .site-header__navlinks {
+    display: flex;
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 20px;
+    font-size: 1.125rem;
+  }
+
+  .site-header__menu-m .site-header__lang {
+    display: flex;
+  }
+
+  /* ---- Pin da Hero no estilo mobile (initMobileHeroMorph) ---- */
+  .hero-pin-wrap.is-pinned-m {
+    position: relative;
+  }
+
+  .hero-pin-wrap.is-pinned-m .hero {
+    position: sticky;
+    top: 0;
+    height: 100vh;
+  }
+
+  /* ---- Sobre: mostra só o duplicado -m, esconde a versão desktop ---- */
+  .hero__about {
+    display: none;
+  }
+
+  .hero__about-m {
+    display: block;
+    position: relative;
+    z-index: 3;
+    pointer-events: none;
+  }
+
+  .hero-pin-wrap.is-pinned-m .hero__about-m {
+    position: absolute;
+    inset: 0;
+  }
+
+  .about-m__overlay {
+    position: relative;
+    min-height: 100%;
+  }
+
+  .about-m__title {
+    position: absolute;
+    top: 102px;
+    left: var(--gutter);
+    right: var(--gutter);
+    font-family: var(--font-serif);
+    font-weight: 400;
+    font-size: clamp(2.5rem, 8vw, 3.5rem);
+    line-height: 0.92;
+    letter-spacing: -0.01em;
+    color: var(--hero-bg);
+    opacity: 0;
+    transform: translateY(20px);
+    transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+  }
+
+  .about-m__title em {
+    font-style: italic;
+  }
+
+  .about-m__text,
+  .about-m__stats {
+    position: absolute;
+    left: var(--gutter);
+    right: var(--gutter);
+    top: calc(102px + 120px);
+    opacity: 0;
+    transform: translateY(20px);
+  }
+
+  .about-m__text {
+    font-size: 0.9375rem;
+    line-height: 1.6;
+    color: var(--text-secondary);
+    transition: opacity 0.8s var(--ease), transform 0.8s var(--ease), color 0.8s var(--ease);
+  }
+
+  .about-m__stats {
+    display: flex;
+    flex-wrap: nowrap;
+    gap: 16px;
+    transition: opacity 0.8s var(--ease), transform 0.8s var(--ease);
+  }
+
+  .about-m__stats .stat {
+    flex: 1 1 0;
+    min-width: 0;
+  }
+
+  .about-m__stats .stat__label {
+    max-width: none;
+    color: var(--text-primary);
+  }
+
+  .about-m__title.is-shown-m,
+  .about-m__text.is-shown-m,
+  .about-m__stats.is-shown-m {
+    opacity: 1;
+    transform: none;
+  }
+
+  .about-m__text.is-shown-m {
+    color: var(--text-primary);
+  }
+
+  .hero-pin-wrap.is-pinned-m .hero__image::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 50%;
+    width: 190%;
+    height: 240px;
+    transform: translateX(-50%);
+    border-radius: 50%;
+    background-color: rgba(226, 226, 226, 0.8);
+    filter: blur(20px);
+    opacity: 0;
+    transition: opacity 0.8s var(--ease);
+    pointer-events: none;
+    will-change: opacity;
+  }
+
+  .hero-pin-wrap.is-pinned-m .hero__image.is-active-m::after {
+    opacity: 1;
+  }
+
+  /* ---- Selected Work: acrescenta ao bloco "Intermediário" (769-1619px,
+     acima) o resto do tratamento mobile — índice escondido, card e
+     foto empilhados sem gap, título/descrição no tamanho do mobile ---- */
+  .work-layout {
+    padding-block: 56px 24px;
+  }
+
+  .work-heading.reveal,
+  .work-item.reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  .work-item__link {
+    padding: 20px 0;
+    flex-wrap: wrap;
+    align-items: flex-start;
+    gap: 0;
+  }
+
+  .work-item__index {
+    display: none;
+  }
+
+  .work-item__content {
+    flex-basis: 100%;
+  }
+
+  .work-heading__title {
+    font-size: clamp(2.5rem, 8vw, 3.5rem);
+    padding-top: 40px;
+  }
+
+  .work-heading__desc {
+    color: var(--text-secondary);
+    font-size: 0.8125rem;
+  }
+
+  /* ---- Competências e ferramentas: carrossel igual ao mobile ---- */
+  .skills-row {
+    flex-wrap: nowrap;
+    overflow-x: auto;
+    scroll-snap-type: x mandatory;
+    -webkit-overflow-scrolling: touch;
+    scrollbar-width: none;
+    margin-inline: calc(-1 * var(--gutter));
+    padding-inline: var(--gutter);
+  }
+
+  .skills-row::-webkit-scrollbar {
+    display: none;
+  }
+
+  .skill {
+    flex: 0 0 237px;
+    height: auto;
+    padding-block: 32px;
+    scroll-snap-align: start;
+  }
+
+  .skill.reveal {
+    opacity: 1;
+    transform: none;
+    transition: none;
+  }
+
+  /* ---- Timeline: empilhada, igual ao mobile ---- */
+  .experience {
+    padding-top: 80px;
+    padding-bottom: 80px;
+  }
+
+  .timeline__entry {
+    flex-direction: column;
+    align-items: flex-start;
+    gap: 4px;
+  }
+
+  .timeline__sep {
+    display: none;
+  }
+
+  /* ---- Footer: pin + mancha no estilo mobile (ver initFooterFocus,
+     positionFooterGlowOrigin, HEADER_OFFSET — js/script.js) ---- */
+  .footer {
+    padding-block: 0;
+  }
+
+  .footer > .container {
+    display: flex;
+    flex-direction: column;
+    flex: 1;
+    justify-content: space-evenly;
+  }
+
+  .footer__bottom {
+    flex-direction: column;
+    align-items: flex-start;
+    margin-top: 0;
+  }
+
+  .footer-pin-wrap.is-pinned .footer {
+    top: 72px;
+    min-height: calc(100vh - 72px);
+  }
+
+  .footer-pin-wrap.is-pinned {
+    height: 260vh;
+  }
+
+  .footer__heading {
+    font-size: 40px;
+  }
+
+  .footer__glow {
+    width: 90%;
+    --footer-glow-scale: 8;
+    top: var(--fp-origin-top, 45%);
+    bottom: auto;
+    left: 50%;
+    transform: translate(-50%, -50%) scale(calc(var(--fp-glow, 1) * var(--footer-glow-scale, 5.4)));
+  }
+
+  .footer::after {
+    content: '';
+    position: absolute;
+    inset: 0;
+    z-index: 0;
+    background-color: var(--hero-bg);
+    opacity: var(--fp-solid, 1);
+    pointer-events: none;
   }
 }
 
@@ -2565,5 +3131,44 @@ button:focus-visible,
     opacity: 1;
     transform: none;
     transition-delay: 0ms !important;
+  }
+}
+
+/* ==========================================================================
+   Nome da Hero: breakline só em telemóvel portrait (441–1365px override)
+
+   Pedido 2026-09-13: ".hero__name-break-m" (o <br> forçado entre "HI,
+   I'm" e "LUANA") só deve aparecer em telemóvel PORTRAIT, max-width:
+   440px — nem em telemóvel paisagem (441-768px, dentro do bloco
+   mobile congelado) nem em tablet (769-1365px, bloco "Responsivo —
+   iPad Air / iPad Pro"), ambos com o nome numa linha só.
+
+   Limite superior 1365px, não 1366px: a partir de 1366px (iPad Pro
+   em paisagem, ver nota 2026-09-13 no bloco "Responsivo — iPad Air /
+   iPad Pro") o site já usa o desktop de verdade, cujo nome de uma
+   linha só vem do clamp base (.hero__name) + fitHeroName (JS,
+   initHeroScrollMorph) — este override não é mais necessário nem
+   deve interferir lá.
+
+   Em vez de editar o bloco mobile congelado (max-width:768px) ou o da
+   Fase 1 (769-1365px) — nenhuma linha lá dentro é tocada, ver
+   [[mobile-only-scope]] — este bloco vem DEPOIS de ambos no ficheiro e
+   sobrepõe só estas duas propriedades pela ordem da cascata (mesma
+   especificidade, uma classe só). font-size próprio (não o clamp de
+   4.5rem-8.5rem pensado para 2 linhas): sem medição em JS disponível
+   nessas larguras (fitHeroName só corre no desktop, ≥1366px), este
+   valor foi calculado à mão para caber numa linha só sem estourar a
+   largura do container nos dois extremos (441px e 1365px) — não
+   testado visualmente num browser real; ajustar se necessário.
+   white-space:normal (regra base mobile, não tocada) continua a
+   permitir quebra natural como rede de segurança caso o cálculo erre. */
+@media (min-width: 441px) and (max-width: 1365px) {
+  .hero__name-break-m {
+    display: none;
+  }
+
+  .hero__name {
+    font-size: clamp(3rem, 12vw, 9rem);
+    font-size: clamp(3rem, 17vw, 13rem);
   }
 }

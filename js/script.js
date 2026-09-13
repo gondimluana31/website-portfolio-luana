@@ -217,7 +217,12 @@
     if (!wrap || !hero || !header) return;
 
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const canPin = window.matchMedia('(min-width: 900px)').matches;
+    // 1366px — FASE 1 (iPad Air/Pro, 769-1365px, ver style.css) usa o
+    // modelo mobile (initMobileHeroMorph) nessa faixa; este pin "de
+    // verdade" liga a partir daí, incluindo o iPad Pro em paisagem
+    // (1366px — tirado do modelo mobile 2026-09-13, ver nota em
+    // style.css: ficava "num limbo", sem as animações do header/foto).
+    const canPin = window.matchMedia('(min-width: 1366px)').matches;
 
     if (prefersReduced || !canPin) {
       initSimpleHeaderReveal(hero, header);
@@ -723,8 +728,10 @@
 
   /* ------------------------------------------------------------------ */
   /* Selected Work — sem interação de cursor: o único gatilho é a       */
-  /* posição do scroll dentro do pin (a partir de 1440px), que tinge a  */
-  /* linha ativa e revela a imagem do respetivo projeto, "abrindo-a" a  */
+  /* posição do scroll dentro do pin (a partir de 1620px, mesmo limiar  */
+  /* que desliga o pin em style.css — ver ".work-pin-spacer" no bloco   */
+  /* "Responsivo — Tablet"), que tinge a linha ativa e revela a imagem  */
+  /* do respetivo projeto, "abrindo-a" a                                */
   /* partir do canto inferior esquerdo (clip-path, ver style.css) —     */
   /* mesmo mecanismo da referência enviada (neutomni.com), com o visual */
   /* do estado ativo conforme o Figma (node 243:11647).                 */
@@ -791,8 +798,11 @@
     }
 
     // O scroll-scrub só faz sentido com as duas colunas lado a lado e
-    // o pin ativo (ver breakpoint em .work-layout, css/style.css).
-    const scrubQuery = window.matchMedia('(min-width: 1440px)');
+    // o pin ativo (ver breakpoint em .work-layout, css/style.css) —
+    // 1620px, não 1440px: antes os dois números não batiam (o CSS já
+    // tinha desligado o pin em max-width:1619px, deixando este scrub
+    // "armado" sem efeito visual entre 1440 e 1619px).
+    const scrubQuery = window.matchMedia('(min-width: 1620px)');
     const reducedQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     let canScrub = scrubQuery.matches && !reducedQuery.matches;
 
@@ -897,21 +907,20 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* Selected Work (mobile) — sem animação de entrada nem gatilho de     */
-  /* scroll aqui (ver .work-heading.reveal/.work-item.reveal, style.css */
-  /* — desligados nesta secção): todos os trabalhos aparecem juntos,     */
-  /* já no estado final. A única interação é o clique: cada work-item   */
-  /* ganha a sua própria janela de foto por baixo do conteúdo            */
-  /* (.work-item__photo, ver style.css), que abre ao clicar no card.     */
-  /* Acordeão — nunca mais do que uma foto aberta ao mesmo tempo: ao     */
-  /* clicar noutro card, a foto aberta anterior fecha e a nova abre;     */
-  /* clicar no mesmo card fecha-a. Os links continuam a apontar para "#" */
-  /* (placeholder), por isso preventDefault em todos — sem isso o clique */
-  /* saltava a página para o topo. Elementos fora do mobile ficam        */
-  /* display:none (CSS) e esta função nem chega a correr lá.             */
+  /* Selected Work (mobile + tablet/laptop, ≤1619px) — sem gatilho de    */
+  /* scroll aqui: a única interação é o clique — cada work-item ganha    */
+  /* a sua própria janela de foto por baixo do conteúdo (.work-item__    */
+  /* photo, ver style.css), que abre ao clicar no card. Acordeão —       */
+  /* nunca mais do que uma foto aberta ao mesmo tempo: ao clicar noutro  */
+  /* card, a foto aberta anterior fecha e a nova abre; clicar no mesmo   */
+  /* card fecha-a. Os links continuam a apontar para "#" (placeholder),  */
+  /* por isso preventDefault em todos — sem isso o clique saltava a      */
+  /* página para o topo. Fora dessa faixa (desktop, >1619px, onde a      */
+  /* pré-visualização já vem pelo scroll-scrub) fica display:none (CSS)  */
+  /* e esta função nem chega a correr lá.                                */
   /* ------------------------------------------------------------------ */
   function initWorkPhotoToggle() {
-    if (!window.matchMedia('(max-width: 768px)').matches) return;
+    if (!window.matchMedia('(max-width: 1619px)').matches) return;
 
     const items = Array.from(document.querySelectorAll('.work-item'));
     if (items.length === 0) return;
@@ -951,7 +960,10 @@
   /* troca de idioma). */
   /* ------------------------------------------------------------------ */
   function positionFooterGlowOrigin() {
-    if (!window.matchMedia('(max-width: 768px)').matches) return;
+    // 1365px — FASE 1 (iPad Air/Pro, 769-1365px) usa o mesmo
+    // footer__glow com origem na palavra "ignorar" que o mobile, ver
+    // style.css. iPad Pro em paisagem (1366px) já é desktop.
+    if (!window.matchMedia('(max-width: 1365px)').matches) return;
 
     const footer = document.querySelector('.footer');
     const highlight = document.querySelector('.footer__highlight');
@@ -979,10 +991,11 @@
   /* altura extra (.is-pinned), o footer fica sticky lá dentro. A        */
   /* suavidade (scroll-scrub contínuo em vez de passos) é a mesma ideia  */
   /* da secção "we keep our focus on important things" de neutomni.com.  */
-  /* O pin liga no desktop (≥900px) e também no mobile (≤768px) — só a   */
-  /* faixa estreita do tablet (769-899px) e o prefers-reduced-motion     */
-  /* ficam de fora (ver o media query "Pin desativado" em style.css, que  */
-  /* dá a esses dois casos o título compacto sem o respiro de 100vh).    */
+  /* O pin já ligava no desktop (≥900px) e no mobile (≤768px) — a FASE 1 */
+  /* (iPad Air/Pro, 769-1365px, ver style.css) fecha o único buraco que  */
+  /* sobrava (769-899px, antes com título compacto sem pin) ao adotar o  */
+  /* modelo mobile nessa faixa toda: com isso o pin passa a cobrir 100%  */
+  /* das larguras, só o prefers-reduced-motion continua a desligá-lo.    */
   /* Sem pin, o default de --fp-glow/--fp-color em CSS já deixa o footer */
   /* no estado final — nada a fazer aqui. */
   /* ------------------------------------------------------------------ */
@@ -991,16 +1004,17 @@
     const footer = document.querySelector('.footer');
     if (!wrap || !footer) return;
 
-    const canPin = window.matchMedia('(min-width: 900px), (max-width: 768px)').matches;
     const reducedMotion = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    if (!canPin || reducedMotion) return;
+    if (reducedMotion) return;
 
     wrap.classList.add('is-pinned');
 
     // Mesmo top: do .footer sticky, ver css/style.css — 88px no desktop
-    // (mesma altura do .site-header lá), 72px no mobile (header mais
-    // baixo, ver .site-header no mobile).
-    const HEADER_OFFSET = window.matchMedia('(max-width: 768px)').matches ? 72 : 88;
+    // de verdade (mesma altura do .site-header lá, agora incluindo o
+    // iPad Pro em paisagem, 1366px), 72px no mobile e na faixa iPad
+    // Air/Pro (retrato) da FASE 1 (769-1365px — header também vira
+    // 72px lá, ver .site-header nesse bloco).
+    const HEADER_OFFSET = window.matchMedia('(max-width: 1365px)').matches ? 72 : 88;
     const clamp01 = (n) => Math.min(1, Math.max(0, n));
     const ease = (p, start, end) => (end === start ? (p >= end ? 1 : 0) : clamp01((p - start) / (end - start)));
     let ticking = false;
@@ -1171,7 +1185,15 @@
   /* ------------------------------------------------------------------ */
   function initMobileHeroMorph() {
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    const isMobile = !window.matchMedia('(min-width: 900px)').matches;
+    // 1365px, não 768px — FASE 1 (iPad Air/Pro, 769-1365px, ver bloco
+    // "Responsivo — iPad Air / iPad Pro" em style.css) reaproveita
+    // esta função para essa faixa: mesma CSS (.is-pinned-m,
+    // .hero__about-m, sanduíche, etc.) duplicada lá para esses
+    // tamanhos, exatamente como no mobile (max-width:768px) original.
+    // iPad Pro em paisagem (1366px) foi tirado daqui 2026-09-13 — ver
+    // nota em style.css — e passa a usar o pin do desktop de verdade
+    // (initHeroScrollMorph) em vez deste.
+    const isMobile = window.matchMedia('(max-width: 1365px)').matches;
     if (prefersReduced || !isMobile) return;
 
     const wrap = document.getElementById('heroPinWrap');
@@ -1298,14 +1320,61 @@
     const lerp = (a, b, t) => a + (b - a) * t;
 
     const IMG_HEAD_TOP_PX = 590;
-    const IMG_HEAD_ROOM_PX = 100;
+    // Folga acima da cabeça (px) — interpolada pela LARGURA da caixa,
+    // não um valor fixo só: em caixas mais largas que altas (iPad Air
+    // em paisagem — Fase 1, 769-1365px, já que o iPad Pro em paisagem,
+    // 1366px, virou desktop de verdade — ver nota 2026-09-13 em
+    // style.css) sobra "excess" vertical de verdade pra recortar, e o
+    // mesmo valor fixo de telemóvel (100px) deixava a cabeça perto
+    // demais do topo (pedido 2026-09-13: ~54% → ~40% no iPad Air,
+    // 1180px). Em ≤768px (telemóvel, incluindo o bloco congelado) o
+    // resultado do lerp é sempre exatamente 100 — comportamento
+    // idêntico ao valor fixo de antes, não muda nada aí.
+    const IMG_HEAD_ROOM_MIN_PX = 100; // ≤768px de largura de caixa
+    const IMG_HEAD_ROOM_MAX_PX = 310; // ≥1365px de largura de caixa (calibrado p/ ~40% no iPad Air, 1180px — não testado num browser real, ajustar se necessário)
 
+    // Ecrãs muito pequenos (largura <390px E altura <800px — ex. Galaxy
+    // S8+, 360×740): com object-fit:cover o "excess" vertical é 0 nesse
+    // formato de caixa (ver comentário em targetObjectPositionY),
+    // tornando object-position inútil — nenhum valor resolve (confirmado
+    // 2026-09-13). Só aqui trocamos para object-fit:none — mostra a
+    // imagem no tamanho NATURAL (1066×1600px, sem escalar), o que cria
+    // sobra vertical de verdade, e ESSE object-position passa a
+    // funcionar de facto (ver updateImagePin, onde object-fit também é
+    // trocado). 357px de folga (não os 100 do cover — aqui a escala é
+    // 1:1 com a imagem original, não reduzida) calibrado para dar ~25%
+    // na caixa de referência (360×668, já sem os 72px do header) —
+    // "center 25%" confirmado como bom nesse tamanho.
+    const IMG_HEAD_ROOM_NONE_PX = 357;
+
+    function useNoneFit() {
+      return window.innerWidth < 390 && window.innerHeight < 800;
+    }
+
+    /* Object-position-Y da foto crescida, a partir das dimensões reais
+       da caixa e da imagem original (1066×1600px — ver IMG_HEAD_TOP_PX).
+       Quando a caixa é mais alta que larga na MESMA proporção da
+       imagem (praticamente todo telemóvel em retrato), "excess" (sobra
+       vertical depois do object-fit:cover) é 0: a imagem cobre a
+       altura exata da caixa, o recorte acontece só nas laterais, e
+       NENHUM valor de object-position muda o enquadramento vertical —
+       ver useNoneFit()/IMG_HEAD_ROOM_NONE_PX acima para a saída desse
+       caso nos ecrãs mais estreitos/baixos. */
     function targetObjectPositionY(boxWidth, boxHeight) {
       if (!imageEl || !imageEl.naturalWidth || !imageEl.naturalHeight) return 58;
+
+      if (useNoneFit()) {
+        const excessNone = imageEl.naturalHeight - boxHeight;
+        if (excessNone <= 0) return 50;
+        const offsetNone = clamp(IMG_HEAD_TOP_PX - IMG_HEAD_ROOM_NONE_PX, 0, excessNone);
+        return (offsetNone / excessNone) * 100;
+      }
+
       const scale = Math.max(boxWidth / imageEl.naturalWidth, boxHeight / imageEl.naturalHeight);
       const excess = imageEl.naturalHeight * scale - boxHeight;
       if (excess <= 0) return 50;
-      const offset = clamp(IMG_HEAD_TOP_PX * scale - IMG_HEAD_ROOM_PX, 0, excess);
+      const room = lerp(IMG_HEAD_ROOM_MIN_PX, IMG_HEAD_ROOM_MAX_PX, clamp01((boxWidth - 768) / (1365 - 768)));
+      const offset = clamp(IMG_HEAD_TOP_PX * scale - room, 0, excess);
       return (offset / excess) * 100;
     }
 
@@ -1377,7 +1446,10 @@
           imageBox.style.left = '';
           imageBox.style.width = '';
           imageBox.style.height = '';
-          if (imageEl) imageEl.style.objectPosition = '';
+          if (imageEl) {
+            imageEl.style.objectPosition = '';
+            imageEl.style.objectFit = '';
+          }
         }
         return;
       }
@@ -1398,7 +1470,12 @@
       imageBox.style.left = `${lerp(imgRect0.left, targetLeft, growP)}px`;
       imageBox.style.width = `${lerp(imgRect0.width, heroRect.width, growP)}px`;
       imageBox.style.height = `${lerp(imgRect0.height, targetHeight, growP)}px`;
-      if (imageEl) imageEl.style.objectPosition = `center ${lerp(0, targetObjectPositionY(heroRect.width, targetHeight), growP)}%`;
+      if (imageEl) {
+        // object-fit não é interpolável (é um on/off) — troca direto,
+        // sem lerp; ver useNoneFit()/IMG_HEAD_ROOM_NONE_PX acima.
+        imageEl.style.objectFit = useNoneFit() ? 'none' : '';
+        imageEl.style.objectPosition = `center ${lerp(0, targetObjectPositionY(heroRect.width, targetHeight), growP)}%`;
+      }
     }
 
     // Revelação em 3 passos EXCLUSIVOS (ao contrário do desktop,
