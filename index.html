@@ -39,9 +39,9 @@
              sempre, layout/comportamento desktop inalterados. -->
         <div class="site-header__menu-m" id="siteHeaderMenuM">
           <div class="site-header__navlinks">
-            <a href="#trabalho">Trabalho</a>
-            <a href="#sobre">Sobre</a>
-            <a href="#contacto">Contacto</a>
+            <a href="#sobre" data-i18n="nav.sobre">Sobre</a>
+            <a href="#trabalho" data-i18n="nav.trabalho">Trabalho</a>
+            <a href="#contacto" data-i18n="nav.contacto">Contacto</a>
           </div>
 
           <div class="site-header__lang" role="group" aria-label="Selecionar idioma">
@@ -51,7 +51,13 @@
           </div>
         </div>
 
-        <a href="assets/cv-luana-gondim.pdf" class="site-header__resume" download>Currículo ↗</a>
+        <!-- Sem "download" — abre numa nova aba (ver target/rel abaixo).
+             data-cv-pt/data-cv-en guardam os dois PDFs (PT é o href de
+             base, já que PT é o idioma inicial do documento); troca de
+             ficheiro conforme o idioma ativo fica a cargo de
+             applyLanguage (ver js/script.js), que já corre nesta troca
+             de PT/EN e no load inicial (initLanguage). -->
+        <a href="assets/cv-luana-gondim-pt.pdf" data-cv-pt="assets/cv-luana-gondim-pt.pdf" data-cv-en="assets/cv-luana-gondim-en.pdf" class="site-header__resume" target="_blank" rel="noopener noreferrer" data-i18n="nav.curriculo">Currículo ↗</a>
 
         <!-- Sanduíche — só existe visualmente no mobile (display:none
              fora do breakpoint, ver style.css); abre/fecha
@@ -89,12 +95,12 @@
                  sempre. -->
             <div class="hero__topline-m">
               <p class="hero__tagline">Product &amp; UX/UI Designer</p>
-              <a href="assets/cv-luana-gondim.pdf" class="hero__resume" download>Currículo ↗</a>
+              <a href="assets/cv-luana-gondim-pt.pdf" data-cv-pt="assets/cv-luana-gondim-pt.pdf" data-cv-en="assets/cv-luana-gondim-en.pdf" class="hero__resume" target="_blank" rel="noopener noreferrer" data-i18n="nav.curriculo">Currículo ↗</a>
             </div>
             <nav class="hero__navlinks" aria-label="Navegação principal">
-              <a href="#trabalho">Trabalho</a>
-              <a href="#sobre" id="navSobre">Sobre</a>
-              <a href="#contacto">Contacto</a>
+              <a href="#sobre" id="navSobre" data-i18n="nav.sobre">Sobre</a>
+              <a href="#trabalho" data-i18n="nav.trabalho">Trabalho</a>
+              <a href="#contacto" data-i18n="nav.contacto">Contacto</a>
             </nav>
           </div>
 
@@ -104,7 +110,7 @@
                  no mesmo sítio, em vez de depender do reflow orgânico.
                  Sem efeito no desktop, que já quebra sozinho onde
                  calha (largura bem maior, sem indentação nenhuma). -->
-            <p class="hero__headline">Desenho produtos digitais<br class="hero__headline-break-m"> com o rigor de quem já<br class="hero__headline-break-m"> desenhou edifícios.</p>
+            <p class="hero__headline" data-i18n="hero.headline" data-i18n-html>Desenho produtos digitais<br class="hero__headline-break-m"> com o rigor de quem já<br class="hero__headline-break-m"> desenhou edifícios.</p>
           </div>
 
           <div class="hero__bottom">
@@ -119,14 +125,14 @@
                  3 itens numa fila só). -->
             <span class="hero__status-m">
               <span class="hero__status-dot" aria-hidden="true"></span>
-              Disponível para trabalho
+              <span data-i18n="hero.status">Disponível para trabalho</span>
             </span>
             <div class="hero__image">
               <img src="assets/images/hero-arquitetura.jpg" width="644" height="323" loading="eager" alt="Fachada arquitetónica fotografada em diagonal, ligando o percurso de arquitetura de Luana ao design digital">
             </div>
             <span class="hero__meta hero__meta--status">
               <span class="hero__status-dot" aria-hidden="true"></span>
-              Disponível para trabalho
+              <span data-i18n="hero.status">Disponível para trabalho</span>
             </span>
           </div>
         </div>
@@ -137,7 +143,7 @@
         <div class="hero__about" id="sobre">
           <div class="about__overlay container">
             <div class="about__row about__row--top">
-              <h2 class="about__title">De plantas<br><em>a interface.</em></h2>
+              <h2 class="about__title" data-i18n="about.title" data-i18n-html>De plantas<br><em>a interface.</em></h2>
               <p class="about__text about__text--top" data-i18n="about.p2">Em 2024, cofundei a Paparico, onde liderei projetos de UX/UI de ponta a ponta, da investigação aos protótipos e resultados. Hoje, procuro levar esse rigor para uma equipa de Product Design, em colaboração próxima com engenharia.</p>
             </div>
 
@@ -178,7 +184,7 @@
              escondida fora do breakpoint mobile. -->
         <div class="hero__about-m">
           <div class="about-m__overlay container">
-            <h2 class="about-m__title">De plantas<br><em>a interface.</em></h2>
+            <h2 class="about-m__title" data-i18n="about.title" data-i18n-html>De plantas<br><em>a interface.</em></h2>
             <p class="about-m__text about-m__text--bottom" data-i18n="about.p1">Durante oito anos, liderei projetos de arquitetura e interiores, gerindo equipas, orçamentos e cronogramas complexos. Foi aí que desenvolvi um pensamento sistémico que hoje aplico ao design digital: compreender o problema, estruturar antes de estilizar e desenhar para as pessoas.</p>
             <p class="about-m__text about-m__text--top" data-i18n="about.p2">Em 2024, cofundei a Paparico, onde liderei projetos de UX/UI de ponta a ponta, da investigação aos protótipos e resultados. Hoje, procuro levar esse rigor para uma equipa de Product Design, em colaboração próxima com engenharia.</p>
             <dl class="about-m__stats">
@@ -245,7 +251,7 @@
         <div class="container work-layout">
           <div class="work-layout__left">
             <div class="work-heading">
-              <h2 class="work-heading__title">Trabalhos<br><em>selecionados</em></h2>
+              <h2 class="work-heading__title" data-i18n="work.heading.title" data-i18n-html>Trabalhos<br><em>selecionados</em></h2>
               <p class="work-heading__desc" data-i18n="work.title">Estudos de caso de product design e 8+ anos de pensamento sistémico e estruturado.</p>
             </div>
 

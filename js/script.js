@@ -13,7 +13,14 @@
   const translations = {
     en: {
       'a11y.skip': 'Skip to content',
+      'nav.trabalho': 'Work',
+      'nav.sobre': 'About',
+      'nav.contacto': 'Contact',
+      'nav.curriculo': 'Resume ↗',
+      'hero.headline': 'I design digital products<br class="hero__headline-break-m"> with the rigor of someone<br class="hero__headline-break-m"> who once designed buildings.',
+      'hero.status': 'Available for work',
       'work.title': 'Product design case studies backed by 8+ years of systemic, structured thinking.',
+      'work.heading.title': 'Selected<br><em>work</em>',
       'work.result': 'RESULT',
       'work.viewProject': 'View project →',
       'work.items.0.title': 'Paparico — Landing Page Redesign',
@@ -41,7 +48,7 @@
       'work.items.3.tags.2': 'Group Project',
       'work.items.3.metric': 'Case study',
       'about.eyebrow': 'ABOUT',
-      'about.title': 'From blueprints to interfaces.',
+      'about.title': 'From blueprints<br><em>to interfaces.</em>',
       'about.p1': "For eight years, I led architecture and interior design projects, managing teams, budgets and complex timelines. That's where I developed the systemic thinking I now apply to digital design: understanding the problem, structuring before styling, and designing for people.",
       'about.p2': 'In 2024, I co-founded Paparico, where I led UX/UI projects end to end, from research to prototypes and results. Today, I look to bring that same rigor to a Product Design team, in close collaboration with engineering.',
       'about.stats.0': 'Years of systemic thinking',
@@ -108,6 +115,12 @@
       const isActive = btn.dataset.lang === lang;
       btn.classList.toggle('is-active', isActive);
       btn.setAttribute('aria-pressed', String(isActive));
+    });
+
+    // Botão "Currículo" (header + Hero, ver index.html) — troca o PDF
+    // para o par certo (PT/EN) conforme o idioma ativo.
+    document.querySelectorAll('[data-cv-pt]').forEach((link) => {
+      link.href = lang === 'en' ? link.dataset.cvEn : link.dataset.cvPt;
     });
 
     try {
@@ -354,12 +367,18 @@
     const ease = (p, start, end) => (end === start ? (p >= end ? 1 : 0) : clamp01((p - start) / (end - start)));
     const lerp = (a, b, t) => a + (b - a) * t;
 
-    // Onde a cabeça começa na foto original (1066×1600px) — usado para
-    // calcular o enquadramento vertical final a partir das dimensões
-    // reais da imagem e da caixa, em vez de uma percentagem fixa "no
-    // olho" que só ficaria certa numa altura de ecrã específica.
-    const IMG_HEAD_TOP_PX = 590;
-    const IMG_HEAD_ROOM_PX = 100; // folga desejada acima da cabeça, na caixa final
+    // Onde a cabeça começa na foto original (1440×2161px — medido por
+    // varrimento de pixels no ficheiro atual; a foto de referência
+    // trocou em 2026-09-14 e o valor antigo, 590, era calibrado para a
+    // foto anterior, 1066×1600px) — usado para calcular o enquadramento
+    // vertical final a partir das dimensões reais da imagem e da caixa,
+    // em vez de uma percentagem fixa "no olho" que só ficaria certa
+    // numa altura de ecrã específica.
+    const IMG_HEAD_TOP_PX = 806;
+    // Folga acima da cabeça, na caixa final (px) — recalibrada junto com
+    // IMG_HEAD_TOP_PX (era 100) para bater com os ~41%/~45% pedidos a
+    // 1520px/1950px de largura (pedido 2026-09-14, depois da troca da foto).
+    const IMG_HEAD_ROOM_PX = 150;
 
     function targetObjectPositionY(boxWidth, boxHeight) {
       if (!imageEl || !imageEl.naturalWidth || !imageEl.naturalHeight) return 58;
@@ -578,12 +597,14 @@
     // secção que .about__overlay sobrepõe, ver #sobre no HTML) — a
     // navegação nativa por âncora pousaria só no topo dela; aqui
     // calcula-se o ponto exato do percurso preso em que o texto já
-    // começou a revelar-se e rola-se até lá.
+    // revelou por completo (aboutP=1, ver updateAboutReveal/aboutStages
+    // acima — o último estágio, .about__stats, só liga a partir de
+    // 0.75) e rola-se até lá, em vez de parar a meio da revelação.
     document.querySelectorAll('a[href="#sobre"]').forEach((a) => {
       a.addEventListener('click', (e) => {
         e.preventDefault();
         const wrapTop = wrap.getBoundingClientRect().top + window.scrollY;
-        window.scrollTo({ top: wrapTop + growRangePx + revealRangePx * 0.08, behavior: 'smooth' });
+        window.scrollTo({ top: wrapTop + growRangePx + revealRangePx, behavior: 'smooth' });
       });
     });
 
@@ -713,7 +734,7 @@
     if (!layout || !desc || !firstItem) return;
 
     function position() {
-      if (window.matchMedia('(max-width: 1619px)').matches) {
+      if (window.matchMedia('(max-width: 1519px)').matches) {
         desc.style.top = '';
         return;
       }
@@ -728,7 +749,7 @@
 
   /* ------------------------------------------------------------------ */
   /* Selected Work — sem interação de cursor: o único gatilho é a       */
-  /* posição do scroll dentro do pin (a partir de 1620px, mesmo limiar  */
+  /* posição do scroll dentro do pin (a partir de 1520px, mesmo limiar  */
   /* que desliga o pin em style.css — ver ".work-pin-spacer" no bloco   */
   /* "Responsivo — Tablet"), que tinge a linha ativa e revela a imagem  */
   /* do respetivo projeto, "abrindo-a" a                                */
@@ -799,10 +820,11 @@
 
     // O scroll-scrub só faz sentido com as duas colunas lado a lado e
     // o pin ativo (ver breakpoint em .work-layout, css/style.css) —
-    // 1620px, não 1440px: antes os dois números não batiam (o CSS já
-    // tinha desligado o pin em max-width:1619px, deixando este scrub
-    // "armado" sem efeito visual entre 1440 e 1619px).
-    const scrubQuery = window.matchMedia('(min-width: 1620px)');
+    // 1520px (movido de 1620px em 2026-09-14, pedido), não 1440px:
+    // antes os dois números não batiam (o CSS já tinha desligado o pin
+    // em max-width:1519px, deixando este scrub "armado" sem efeito
+    // visual entre 1440 e 1519px).
+    const scrubQuery = window.matchMedia('(min-width: 1520px)');
     const reducedQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     let canScrub = scrubQuery.matches && !reducedQuery.matches;
 
@@ -907,7 +929,7 @@
   }
 
   /* ------------------------------------------------------------------ */
-  /* Selected Work (mobile + tablet/laptop, ≤1619px) — sem gatilho de    */
+  /* Selected Work (mobile + tablet/laptop, ≤1519px) — sem gatilho de    */
   /* scroll aqui: a única interação é o clique — cada work-item ganha    */
   /* a sua própria janela de foto por baixo do conteúdo (.work-item__    */
   /* photo, ver style.css), que abre ao clicar no card. Acordeão —       */
@@ -915,12 +937,12 @@
   /* card, a foto aberta anterior fecha e a nova abre; clicar no mesmo   */
   /* card fecha-a. Os links continuam a apontar para "#" (placeholder),  */
   /* por isso preventDefault em todos — sem isso o clique saltava a      */
-  /* página para o topo. Fora dessa faixa (desktop, >1619px, onde a      */
+  /* página para o topo. Fora dessa faixa (desktop, >1519px, onde a      */
   /* pré-visualização já vem pelo scroll-scrub) fica display:none (CSS)  */
   /* e esta função nem chega a correr lá.                                */
   /* ------------------------------------------------------------------ */
   function initWorkPhotoToggle() {
-    if (!window.matchMedia('(max-width: 1619px)').matches) return;
+    if (!window.matchMedia('(max-width: 1519px)').matches) return;
 
     const items = Array.from(document.querySelectorAll('.work-item'));
     if (items.length === 0) return;
@@ -1319,40 +1341,45 @@
     const ease = (p, start, end) => (end === start ? (p >= end ? 1 : 0) : clamp01((p - start) / (end - start)));
     const lerp = (a, b, t) => a + (b - a) * t;
 
-    const IMG_HEAD_TOP_PX = 590;
+    // 806 — mesmo valor medido na foto atual (1440×2161px) usado na
+    // função de desktop (ver IMG_HEAD_TOP_PX em initHeroScrollMorph);
+    // a foto de referência trocou em 2026-09-14, por isso o valor
+    // antigo (590) já não vale — era calibrado para a foto anterior,
+    // 1066×1600px.
+    const IMG_HEAD_TOP_PX = 806;
     // Folga acima da cabeça (px) — interpolada pela LARGURA da caixa,
     // não um valor fixo só: em caixas mais largas que altas (iPad Air
     // em paisagem — Fase 1, 769-1365px, já que o iPad Pro em paisagem,
     // 1366px, virou desktop de verdade — ver nota 2026-09-13 em
     // style.css) sobra "excess" vertical de verdade pra recortar, e o
-    // mesmo valor fixo de telemóvel (100px) deixava a cabeça perto
-    // demais do topo (pedido 2026-09-13: ~54% → ~40% no iPad Air,
-    // 1180px). Em ≤768px (telemóvel, incluindo o bloco congelado) o
-    // resultado do lerp é sempre exatamente 100 — comportamento
-    // idêntico ao valor fixo de antes, não muda nada aí.
-    const IMG_HEAD_ROOM_MIN_PX = 100; // ≤768px de largura de caixa
-    const IMG_HEAD_ROOM_MAX_PX = 310; // ≥1365px de largura de caixa (calibrado p/ ~40% no iPad Air, 1180px — não testado num browser real, ajustar se necessário)
+    // mesmo valor fixo de telemóvel deixava a cabeça perto demais do
+    // topo. MIN recalibrado em 2026-09-14 (era 100) para bater com os
+    // ~90% pedidos no iPad mini (768×1024, caixa 768×952) depois da
+    // troca da foto — MAX (1365px de largura de caixa) não foi
+    // reportado como errado, por isso ficou como estava; vale conferir
+    // se ainda faz sentido depois deste ajuste do MIN.
+    const IMG_HEAD_ROOM_MIN_PX = 249; // ≤768px de largura de caixa
+    const IMG_HEAD_ROOM_MAX_PX = 310; // ≥1365px de largura de caixa (calibrado para a foto anterior — não confirmado com a foto atual)
 
     // Ecrãs muito pequenos (largura <390px E altura <800px — ex. Galaxy
-    // S8+, 360×740): com object-fit:cover o "excess" vertical é 0 nesse
-    // formato de caixa (ver comentário em targetObjectPositionY),
-    // tornando object-position inútil — nenhum valor resolve (confirmado
-    // 2026-09-13). Só aqui trocamos para object-fit:none — mostra a
-    // imagem no tamanho NATURAL (1066×1600px, sem escalar), o que cria
-    // sobra vertical de verdade, e ESSE object-position passa a
-    // funcionar de facto (ver updateImagePin, onde object-fit também é
-    // trocado). 357px de folga (não os 100 do cover — aqui a escala é
-    // 1:1 com a imagem original, não reduzida) calibrado para dar ~25%
-    // na caixa de referência (360×668, já sem os 72px do header) —
-    // "center 25%" confirmado como bom nesse tamanho.
-    const IMG_HEAD_ROOM_NONE_PX = 357;
+    // S8+, 360×740, e o iPhone SE, 375×667): com object-fit:cover o
+    // "excess" vertical é 0 nesse formato de caixa (ver comentário em
+    // targetObjectPositionY), tornando object-position inútil — nenhum
+    // valor resolve (confirmado 2026-09-13). Só aqui trocamos para
+    // object-fit:none — mostra a imagem no tamanho NATURAL (1440×2161px,
+    // sem escalar), o que cria sobra vertical de verdade, e ESSE
+    // object-position passa a funcionar de facto (ver updateImagePin,
+    // onde object-fit também é trocado). Recalibrado em 2026-09-14 (era
+    // 357, para a foto anterior) para bater com os ~32% pedidos no
+    // iPhone SE (375×667, caixa 375×595, já sem os 72px do header).
+    const IMG_HEAD_ROOM_NONE_PX = 305;
 
     function useNoneFit() {
       return window.innerWidth < 390 && window.innerHeight < 800;
     }
 
     /* Object-position-Y da foto crescida, a partir das dimensões reais
-       da caixa e da imagem original (1066×1600px — ver IMG_HEAD_TOP_PX).
+       da caixa e da imagem original (1440×2161px — ver IMG_HEAD_TOP_PX).
        Quando a caixa é mais alta que larga na MESMA proporção da
        imagem (praticamente todo telemóvel em retrato), "excess" (sobra
        vertical depois do object-fit:cover) é 0: a imagem cobre a
@@ -1549,13 +1576,15 @@
     // href="#sobre") aponta para dentro da própria Hero — a navegação
     // nativa por âncora pousaria só no topo dela (ou nem isso, o
     // duplicado mobile não tem id="sobre" — ver index.html); aqui
-    // calcula-se o ponto exato do percurso preso em que o primeiro
-    // texto já revelou e rola-se até lá.
+    // calcula-se o ponto exato do percurso preso em que a revelação
+    // (3 passos exclusivos, ver updateAboutReveal acima) já chegou ao
+    // último passo (os números/.about-m__stats) e rola-se até lá, em
+    // vez de parar no primeiro texto a meio da sequência.
     document.querySelectorAll('a[href="#sobre"]').forEach((a) => {
       a.addEventListener('click', (e) => {
         e.preventDefault();
         const wrapTop = wrap.getBoundingClientRect().top + window.scrollY;
-        window.scrollTo({ top: wrapTop + growRangePx + revealRangePx * 0.08, behavior: 'smooth' });
+        window.scrollTo({ top: wrapTop + growRangePx + revealRangePx, behavior: 'smooth' });
       });
     });
 

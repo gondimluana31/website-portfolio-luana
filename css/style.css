@@ -104,9 +104,10 @@ button {
    o mesmo modelo mobile — gutter=40 fixo é parte desse modelo. iPad
    Pro em paisagem (1366px de largura) ficou de fora de propósito
    (2026-09-13): nesse tamanho o site passa a usar o desktop "de
-   verdade" (mesmo código de ≥1620px, incluindo a margem fluida — só o
+   verdade" (mesmo código de ≥1520px, incluindo a margem fluida — só o
    Work continua no estilo mobile aí, ver o bloco "Responsivo —
-   Tablet", max-width:1619px). */
+   Tablet", max-width:1519px — limiar movido de 1619px para 1519px em
+   2026-09-14, pedido). */
 @media (max-width: 1365px), (prefers-reduced-motion: reduce) {
   :root {
     --gutter: 40px;
@@ -537,6 +538,7 @@ button:focus-visible,
   align-items: center;
   justify-content: space-between;
   gap: 16px 32px;
+  margin-left: 7px;
 }
 
 /* Fora do mobile, .hero__topline-m é só um wrapper de conveniência no
@@ -740,6 +742,31 @@ button:focus-visible,
   object-position: center top;
 }
 
+/* Ecrãs desktop baixos (ex.: janela ~1520×830) — "HI, I'm LUANA" + nav
+   + tagline do headline, com as margens de sempre, não cabem dentro
+   dos 100vh fixos da Hero presa (overflow:hidden, ver ".hero-pin-wrap.
+   is-pinned .hero" acima) e a linha final (hora/data, foto,
+   "Disponível para trabalho") fica cortada, invisível. Reduz só os
+   respiros verticais — nunca o nome (escala à parte via fitHeroName,
+   initHeroScrollMorph, ignoraria esta mudança) nem a foto — até a
+   linha final voltar a caber. Mesmo limiar de altura já usado pela
+   secção Sobre mais abaixo (@media (min-width: 1366px) and
+   (max-height: 850px)) — não mexe no tablet (≤1365px) nem no mobile. */
+@media (min-width: 1366px) and (max-height: 850px) {
+  .hero__inner {
+    padding-block: 40px 16px;
+  }
+
+  .hero__name {
+    margin-bottom: 16px;
+  }
+
+  .hero__headline {
+    margin-top: 0.35em;
+    margin-bottom: 20px;
+  }
+}
+
 /* Texto da secção Sobre, sobreposto à MESMA foto da Hero (nenhuma
    segunda imagem) — ver updateAboutReveal em initHeroScrollMorph. Nos
    ecrãs/condições em que o pin corre (>=1366px e sem
@@ -782,7 +809,8 @@ button:focus-visible,
   }
 
   .hero__about .about__text {
-    max-width: min(420px, 20vw);
+    max-width: min(420px, 348px);
+    width: 348px;
   }
 
   /* Um pouco mais largo que .about__text: "De plantas" e "a interface."
@@ -830,7 +858,7 @@ button:focus-visible,
    .work-pin-spacer, e .work-layout fica sticky lá dentro, preenchendo
    o ecrã todo (título encostado ao topo, lista empurrada para baixo)
    já no primeiro momento, antes de qualquer scroll. Só ativo a partir
-   de ~1620px — ver initWorkScrub e o breakpoint mais abaixo.
+   de ~1520px — ver initWorkScrub e o breakpoint mais abaixo.
    ========================================================================== */
 .work {
   padding-block: 0;
@@ -846,7 +874,6 @@ button:focus-visible,
   min-height: calc(100vh - 88px);
   display: flex;
   align-items: flex-start;
-  gap: 64px;
   padding-top: 64px;
 }
 
@@ -904,7 +931,7 @@ button:focus-visible,
 .work-heading__desc {
   position: absolute;
   top: 0;
-  right: calc(var(--gutter) + 147.7px);
+  right: var(--gutter);
   width: 300px;
   text-align: right;
   transition: transform 0.5s var(--ease);
@@ -1054,11 +1081,11 @@ button:focus-visible,
 }
 
 /* Janela de foto de cada work-item — existe no mobile e em toda a
-   faixa intermediária de tablet/laptop, ≤1619px (ver blocos
+   faixa intermediária de tablet/laptop, ≤1519px (ver blocos
    "Responsivo — Mobile" e "Responsivo — Intermediário"): só no
-   desktop de verdade (≥1620px) a pré-visualização já vem pela coluna
+   desktop de verdade (≥1520px) a pré-visualização já vem pela coluna
    direita/scroll-scrub (.work-layout__right, initWorkScrub), que aqui
-   fica sempre oculta (ver regra em max-width:1619px), por isso o
+   fica sempre oculta (ver regra em max-width:1519px), por isso o
    card ganha a sua própria imagem por baixo. Oculta por omissão para
    nunca aparecer no desktop de verdade. */
 .work-item__photo {
@@ -1300,6 +1327,53 @@ button:focus-visible,
   font-size: 0.8125rem;
   color: var(--text-secondary);
   max-width: 140px;
+}
+
+/* Pedido: quando a secção "Sobre" (.about__overlay, 100vh) tem menos de
+   850px de altura, os dados ("8+, 2, +15%...") passam para baixo do
+   texto "Em 2024..." (.about__text--top), com 80px de distância — em
+   vez de ao lado de "Durante oito anos..." (.about__row--bottom), como
+   no desktop normal. Só DESKTOP (min-width:1366px, o mesmo limiar de
+   sempre — ver nota "desktop de verdade" acima) e só esta faixa de
+   altura; fora dela, layout 100% intocado.
+   .about__text--bottom e .about__row--bottom continuam exatamente como
+   sempre (nada tocado aqui) — só .about__stats sai do fluxo da row
+   (position:absolute, ancorado à própria .about__row--bottom, que
+   ganha position:relative só para servir de referência) e sobe até à
+   base de .about__row--top: o topo de .about__row--bottom já fica a
+   150px (gap de .about__overlay, regra base) do fim de .about__row--top;
+   top:-70px sobe os stats 70px acima desse ponto, sobrando exatamente
+   80px entre o fim de "Em 2024..." e o início dos dados — sem depender
+   da altura de nada (nem dos próprios stats, nem do texto ao lado),
+   por isso "Durante oito anos..." nunca se mexe. right:0 alinha à
+   direita, mesma margem de "Em 2024...". */
+@media (min-width: 1366px) and (max-height: 850px) {
+  .about__row--bottom {
+    position: relative;
+  }
+
+  .about__stats {
+    position: absolute;
+    top: -70px;
+    right: 0;
+  }
+
+  /* Pedido: nesta mesma faixa curta (desktop, altura <= 850px), o título
+     em EN ("From blueprints / to interfaces.") é bem mais comprido que o
+     PT ("De plantas / a interface.") — no tamanho base (clamp acima, em
+     .about__title) cada metade (antes/depois do <br>) já não cabe numa
+     linha só e o título salta de 2 para 4 linhas, empurrando os stats
+     (regra acima) e estourando a altura da secção. Reduzido só para
+     [lang="en"] (o PT correspondente, com o texto mais curto, nunca
+     precisou disto e continua com o clamp original) — gaps/padding da
+     secção (.about__overlay/.about__row) são os mesmos de sempre, não
+     dependem do tamanho do título, por isso já seguem o mesmo
+     alinhamento do PT assim que o título volta a caber em 2 linhas.
+     Coeficientes calibrados (com folga) para "From blueprints" e "to
+     interfaces." caberem cada um numa linha em toda a faixa >=1366px. */
+  html[lang="en"] .about__title {
+    font-size: clamp(1.9rem, 3.7vw, 4rem);
+  }
 }
 
 /* ==========================================================================
@@ -1692,7 +1766,7 @@ button:focus-visible,
 /* ==========================================================================
    Responsivo — Tablet
    ========================================================================== */
-@media (max-width: 1619px) {
+@media (max-width: 1519px) {
   /* Colunas empilhadas — o pin e o scroll-scrub só fazem sentido lado
      a lado, e a coluna esquerda de 900px fixos (título + lista + o
      botão de resultado lado a lado) + a pré-visualização não cabem
@@ -1750,7 +1824,7 @@ button:focus-visible,
 }
 
 /* ==========================================================================
-   Responsivo — Intermediário (769–1619px): sem a coluna de preview
+   Responsivo — Intermediário (769–1519px): sem a coluna de preview
    nem o scroll-scrub (ver bloco acima), esta faixa ficava sem NENHUMA
    imagem de projeto — mesmo conceito já aprovado para o mobile (janela
    de foto que abre ao clicar, ver ".work-item__photo" no bloco
@@ -1758,8 +1832,10 @@ button:focus-visible,
    duplicado aqui, não partilhado: o bloco mobile fica congelado
    (max-width:768px, ver memória de escopo do projeto) e não deve ter o
    seu limiar alargado nem ser reaproveitado por um seletor mais amplo.
+   Limiar movido de 1619px para 1519px em 2026-09-14 (pedido) — o
+   desktop "de verdade" do Work passa a começar em 1520px, não 1620px.
    ========================================================================== */
-@media (min-width: 769px) and (max-width: 1619px) {
+@media (min-width: 769px) and (max-width: 1519px) {
   .work-item__link {
     flex-wrap: wrap;
   }
@@ -2202,7 +2278,7 @@ button:focus-visible,
     opacity: 1;
   }
 
-  /* ---- Selected Work: acrescenta ao bloco "Intermediário" (769-1619px,
+  /* ---- Selected Work: acrescenta ao bloco "Intermediário" (769-1519px,
      acima) o resto do tratamento mobile — índice escondido, card e
      foto empilhados sem gap, título/descrição no tamanho do mobile ---- */
   .work-layout {
