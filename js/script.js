@@ -7,8 +7,65 @@
   'use strict';
 
   /* ------------------------------------------------------------------ */
-  /* Traduções (PT é o idioma base do documento; EN é gerado a partir   */
-  /* do conteúdo original definido no Figma).                          */
+  /* Índice — o que cada init* faz (todas chamadas no DOMContentLoaded   */
+  /* lá no fundo do ficheiro):                                          */
+  /*                                                                     */
+  /*  initLanguage           troca PT/EN e lê/grava a escolha no        */
+  /*                         localStorage.                              */
+  /*  initHeroClock          relógio ao vivo da Hero (hora/data local).  */
+  /*  initHeadlineAlign      alinha a headline secundária da Hero com a  */
+  /*                         palavra "Sobre" da nav.                     */
+  /*  initHeroScrollMorph    Hero+Sobre presos (pin) no DESKTOP — cai    */
+  /*                         para initSimpleHeaderReveal/                */
+  /*                         initSimpleAboutReveal (fallback sem pin)    */
+  /*                         em prefers-reduced-motion ou <1366px.       */
+  /*  initMobileMenu         abre/fecha o sanduíche do header mobile.    */
+  /*  initMobileHeroMorph    mesmo espírito do initHeroScrollMorph, só   */
+  /*                         para MOBILE/tablet (≤1365px) — ver nota de  */
+  /*                         isolamento mais abaixo, antes desta função. */
+  /*  initScrollReveal       fade-in genérico ao entrar no ecrã (Work,   */
+  /*                         Skills, Timeline, Footer).                  */
+  /*  initWorkDescPosition   alinha o texto de apoio do Selected Work    */
+  /*                         com o topo do primeiro item da lista.       */
+  /*  initWorkScrub          Selected Work: item ativo conforme o        */
+  /*                         scroll, só DESKTOP largo (≥1520px).         */
+  /*  initWorkCursor         cursor circular sobre a linha/imagem ativa  */
+  /*                         do Selected Work (só rato real).            */
+  /*  initWorkPhotoToggle    Selected Work: acordeão de foto por clique, */
+  /*                         mobile/tablet (≤1519px).                    */
+  /*  initWorkLinksInert     impede a navegação real dos links "Ver      */
+  /*                         projeto" (desativados de propósito, ver     */
+  /*                         comentário na função) em QUALQUER largura.  */
+  /*  positionFooterGlowOrigin / initFooterFocus                         */
+  /*                         mancha do footer (glow) que cresce com o    */
+  /*                         scroll — origin (mobile/tablet) e o pin em  */
+  /*                         si (todas as larguras).                     */
+  /* ------------------------------------------------------------------ */
+
+  /* ------------------------------------------------------------------ */
+  /* Helpers matemáticos partilhados pelos dois motores de scroll-morph  */
+  /* da Hero (initHeroScrollMorph, desktop, e initMobileHeroMorph,       */
+  /* mobile/tablet) — cada um calcula o seu próprio progresso, mas a     */
+  /* aritmética (clamp/ease/lerp) é exatamente a mesma, por isso vive     */
+  /* aqui uma vez só em vez de redefinida dentro de cada função.         */
+  /* ------------------------------------------------------------------ */
+  const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
+  const clamp01 = (n) => clamp(n, 0, 1);
+  const ease = (p, start, end) => (end === start ? (p >= end ? 1 : 0) : clamp01((p - start) / (end - start)));
+  const lerp = (a, b, t) => a + (b - a) * t;
+
+  // RGB da cor de marca da Hero/header (mesmo valor de --hero-bg,
+  // css/style.css) — uma única fonte para os dois ficheiros não
+  // desalinharem com o tempo, em vez de "109, 33, 22" escrito à mão em
+  // cada sítio que precisa de o animar com alfa (custom properties CSS
+  // não dão para interpolar alfa a partir de JS tão diretamente quanto
+  // um rgba() montado à mão).
+  const HEADER_BG_RGB = '109, 33, 22';
+
+  /* ------------------------------------------------------------------ */
+  /* Traduções (PT é o idioma base do documento, lido diretamente do     */
+  /* HTML — por isso não existe uma chave "pt" aqui em baixo; só EN é    */
+  /* gerado a partir do conteúdo original definido no Figma).            */
   /* ------------------------------------------------------------------ */
   const translations = {
     en: {
@@ -230,11 +287,10 @@
     if (!wrap || !hero || !header) return;
 
     const prefersReduced = window.matchMedia('(prefers-reduced-motion: reduce)').matches;
-    // 1366px — FASE 1 (iPad Air/Pro, 769-1365px, ver style.css) usa o
-    // modelo mobile (initMobileHeroMorph) nessa faixa; este pin "de
-    // verdade" liga a partir daí, incluindo o iPad Pro em paisagem
-    // (1366px — tirado do modelo mobile 2026-09-13, ver nota em
-    // style.css: ficava "num limbo", sem as animações do header/foto).
+    // A partir de 1366px (inclui o iPad Pro em paisagem) usa-se este pin
+    // "de verdade"; abaixo disso (FASE 1, iPad Air/Pro em retrato,
+    // 769-1365px, ver style.css) usa-se o modelo mobile
+    // (initMobileHeroMorph) em vez deste.
     const canPin = window.matchMedia('(min-width: 1366px)').matches;
 
     if (prefersReduced || !canPin) {
@@ -362,22 +418,13 @@
     measureNameDrops();
     measureMorphPairs();
 
-    const clamp01 = (n) => Math.min(1, Math.max(0, n));
-    const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
-    const ease = (p, start, end) => (end === start ? (p >= end ? 1 : 0) : clamp01((p - start) / (end - start)));
-    const lerp = (a, b, t) => a + (b - a) * t;
-
     // Onde a cabeça começa na foto original (1440×2161px — medido por
-    // varrimento de pixels no ficheiro atual; a foto de referência
-    // trocou em 2026-09-14 e o valor antigo, 590, era calibrado para a
-    // foto anterior, 1066×1600px) — usado para calcular o enquadramento
+    // varrimento de pixels) — usado para calcular o enquadramento
     // vertical final a partir das dimensões reais da imagem e da caixa,
     // em vez de uma percentagem fixa "no olho" que só ficaria certa
     // numa altura de ecrã específica.
     const IMG_HEAD_TOP_PX = 806;
-    // Folga acima da cabeça, na caixa final (px) — recalibrada junto com
-    // IMG_HEAD_TOP_PX (era 100) para bater com os ~41%/~45% pedidos a
-    // 1520px/1950px de largura (pedido 2026-09-14, depois da troca da foto).
+    // Folga acima da cabeça, na caixa final (px).
     const IMG_HEAD_ROOM_PX = 150;
 
     function targetObjectPositionY(boxWidth, boxHeight) {
@@ -468,7 +515,7 @@
       // encostados ao topo (sem deslizar) — mesmo vinho da Hero, não
       // branco, então "I'm LUA" fica branco o tempo todo (sem migrar
       // de cor) e nunca perde contraste.
-      header.style.backgroundColor = `rgba(109, 33, 22, ${inP})`;
+      header.style.backgroundColor = `rgba(${HEADER_BG_RGB}, ${inP})`;
       header.style.borderBottomColor = `rgba(255, 255, 255, ${inP * 0.15})`;
       header.classList.toggle('is-interactive', inP > 0.5);
       // O PT/EN não tem par na Hero (nasce só no header), por isso
@@ -752,10 +799,9 @@
   /* posição do scroll dentro do pin (a partir de 1520px, mesmo limiar  */
   /* que desliga o pin em style.css — ver ".work-pin-spacer" no bloco   */
   /* "Responsivo — Tablet"), que tinge a linha ativa e revela a imagem  */
-  /* do respetivo projeto, "abrindo-a" a                                */
-  /* partir do canto inferior esquerdo (clip-path, ver style.css) —     */
-  /* mesmo mecanismo da referência enviada (neutomni.com), com o visual */
-  /* do estado ativo conforme o Figma (node 243:11647).                 */
+  /* do respetivo projeto, "abrindo-a" a partir do canto inferior       */
+  /* esquerdo (clip-path, ver style.css) — visual do estado ativo       */
+  /* conforme o Figma (node 243:11647).                                 */
   /* ------------------------------------------------------------------ */
   function initWorkScrub() {
     const wrap = document.querySelector('.work-pin-wrap');
@@ -820,10 +866,9 @@
 
     // O scroll-scrub só faz sentido com as duas colunas lado a lado e
     // o pin ativo (ver breakpoint em .work-layout, css/style.css) —
-    // 1520px (movido de 1620px em 2026-09-14, pedido), não 1440px:
-    // antes os dois números não batiam (o CSS já tinha desligado o pin
-    // em max-width:1519px, deixando este scrub "armado" sem efeito
-    // visual entre 1440 e 1519px).
+    // 1520px, mesmo limiar que liga o pin em CSS, para os dois nunca
+    // ficarem desalinhados (scrub "armado" sem efeito visual porque o
+    // pin já desligou, ou vice-versa).
     const scrubQuery = window.matchMedia('(min-width: 1520px)');
     const reducedQuery = window.matchMedia('(prefers-reduced-motion: reduce)');
     let canScrub = scrubQuery.matches && !reducedQuery.matches;
@@ -966,6 +1011,26 @@
   }
 
   /* ------------------------------------------------------------------ */
+  /* Selected Work — os links "Ver projeto" (.work-item__link) e as       */
+  /* pré-visualizações (.work-preview__link) estão desativados de         */
+  /* propósito por agora (apontam para "#" — serão ligados a páginas de   */
+  /* case study próprias no futuro). initWorkPhotoToggle (acima) já trata */
+  /* disto no acordeão mobile/tablet (≤1519px), mas só corre nessa faixa; */
+  /* no DESKTOP (≥1520px), onde initWorkScrub torna a linha ativa/imagem  */
+  /* inteira clicável, nada travava o clique — sem preventDefault, um     */
+  /* clique aí saltava a página para o topo (href="#" a navegar de        */
+  /* verdade). Esta função cobre as DUAS faixas com o mesmo handler,      */
+  /* independente da largura do ecrã, para o link ficar inerte em         */
+  /* qualquer tamanho até haver um destino real. */
+  /* ------------------------------------------------------------------ */
+  function initWorkLinksInert() {
+    const links = document.querySelectorAll('.work-item__link, .work-preview__link');
+    links.forEach((link) => {
+      link.addEventListener('click', (e) => e.preventDefault());
+    });
+  }
+
+  /* ------------------------------------------------------------------ */
   /* Footer (mobile) — a mancha (.footer__glow) nasce à altura da        */
   /* palavra "ignorar" (.footer__highlight), não num ponto fixo          */
   /* (bottom:-10%, pensado para o desktop, onde o título quebra de forma */
@@ -1010,16 +1075,11 @@
   /* --fp-glow/--fp-color, que o CSS interpola (ver .footer/             */
   /* .footer__glow, css/style.css) — mesmo mecanismo de pin da Hero/     */
   /* Selected Work (initHeroScrollMorph/initWorkScrub): a wrap ganha     */
-  /* altura extra (.is-pinned), o footer fica sticky lá dentro. A        */
-  /* suavidade (scroll-scrub contínuo em vez de passos) é a mesma ideia  */
-  /* da secção "we keep our focus on important things" de neutomni.com.  */
-  /* O pin já ligava no desktop (≥900px) e no mobile (≤768px) — a FASE 1 */
-  /* (iPad Air/Pro, 769-1365px, ver style.css) fecha o único buraco que  */
-  /* sobrava (769-899px, antes com título compacto sem pin) ao adotar o  */
-  /* modelo mobile nessa faixa toda: com isso o pin passa a cobrir 100%  */
-  /* das larguras, só o prefers-reduced-motion continua a desligá-lo.    */
-  /* Sem pin, o default de --fp-glow/--fp-color em CSS já deixa o footer */
-  /* no estado final — nada a fazer aqui. */
+  /* altura extra (.is-pinned), o footer fica sticky lá dentro. O pin    */
+  /* cobre todas as larguras (desktop, mobile e a FASE 1 do iPad         */
+  /* Air/Pro, 769-1365px, ver style.css), só prefers-reduced-motion o    */
+  /* desliga — nesse caso o default de --fp-glow/--fp-color em CSS já    */
+  /* deixa o footer no estado final, nada a fazer aqui. */
   /* ------------------------------------------------------------------ */
   function initFooterFocus() {
     const wrap = document.querySelector('.footer-pin-wrap');
@@ -1037,8 +1097,6 @@
     // Air/Pro (retrato) da FASE 1 (769-1365px — header também vira
     // 72px lá, ver .site-header nesse bloco).
     const HEADER_OFFSET = window.matchMedia('(max-width: 1365px)').matches ? 72 : 88;
-    const clamp01 = (n) => Math.min(1, Math.max(0, n));
-    const ease = (p, start, end) => (end === start ? (p >= end ? 1 : 0) : clamp01((p - start) / (end - start)));
     let ticking = false;
 
     function scrollProgress() {
@@ -1144,7 +1202,7 @@
       const navEls = menu.querySelectorAll('.site-header__navlinks a');
       const lang = menu.querySelector('.site-header__lang');
       if (open) {
-        header.style.backgroundColor = 'rgba(109, 33, 22, 1)';
+        header.style.backgroundColor = `rgba(${HEADER_BG_RGB}, 1)`;
         header.style.borderBottomColor = 'rgba(255, 255, 255, 0.15)';
         navEls.forEach((a) => {
           a.style.opacity = '1';
@@ -1161,7 +1219,7 @@
         const scrolled = wrap ? -wrap.getBoundingClientRect().top : window.scrollY;
         const heroP = Math.min(1, Math.max(0, scrolled / window.innerHeight));
         const inP = Math.min(1, Math.max(0, (heroP - 0.35) / 0.4));
-        header.style.backgroundColor = `rgba(109, 33, 22, ${inP})`;
+        header.style.backgroundColor = `rgba(${HEADER_BG_RGB}, ${inP})`;
         header.style.borderBottomColor = `rgba(255, 255, 255, ${inP * 0.15})`;
         navEls.forEach((a) => {
           a.style.opacity = String(inP);
@@ -1212,9 +1270,8 @@
     // esta função para essa faixa: mesma CSS (.is-pinned-m,
     // .hero__about-m, sanduíche, etc.) duplicada lá para esses
     // tamanhos, exatamente como no mobile (max-width:768px) original.
-    // iPad Pro em paisagem (1366px) foi tirado daqui 2026-09-13 — ver
-    // nota em style.css — e passa a usar o pin do desktop de verdade
-    // (initHeroScrollMorph) em vez deste.
+    // O iPad Pro em paisagem (1366px) fica de fora — esse já usa o pin
+    // do desktop de verdade (initHeroScrollMorph) em vez deste.
     const isMobile = window.matchMedia('(max-width: 1365px)').matches;
     if (prefersReduced || !isMobile) return;
 
@@ -1336,42 +1393,27 @@
     measureNameDrops();
     measureMorphPairs();
 
-    const clamp01 = (n) => Math.min(1, Math.max(0, n));
-    const clamp = (n, min, max) => Math.min(max, Math.max(min, n));
-    const ease = (p, start, end) => (end === start ? (p >= end ? 1 : 0) : clamp01((p - start) / (end - start)));
-    const lerp = (a, b, t) => a + (b - a) * t;
-
-    // 806 — mesmo valor medido na foto atual (1440×2161px) usado na
-    // função de desktop (ver IMG_HEAD_TOP_PX em initHeroScrollMorph);
-    // a foto de referência trocou em 2026-09-14, por isso o valor
-    // antigo (590) já não vale — era calibrado para a foto anterior,
-    // 1066×1600px.
+    // Onde a cabeça começa na foto original (1440×2161px) — mesmo valor
+    // usado na função de desktop (ver IMG_HEAD_TOP_PX em
+    // initHeroScrollMorph).
     const IMG_HEAD_TOP_PX = 806;
     // Folga acima da cabeça (px) — interpolada pela LARGURA da caixa,
     // não um valor fixo só: em caixas mais largas que altas (iPad Air
-    // em paisagem — Fase 1, 769-1365px, já que o iPad Pro em paisagem,
-    // 1366px, virou desktop de verdade — ver nota 2026-09-13 em
-    // style.css) sobra "excess" vertical de verdade pra recortar, e o
-    // mesmo valor fixo de telemóvel deixava a cabeça perto demais do
-    // topo. MIN recalibrado em 2026-09-14 (era 100) para bater com os
-    // ~90% pedidos no iPad mini (768×1024, caixa 768×952) depois da
-    // troca da foto — MAX (1365px de largura de caixa) não foi
-    // reportado como errado, por isso ficou como estava; vale conferir
-    // se ainda faz sentido depois deste ajuste do MIN.
+    // em paisagem, FASE 1, 769-1365px) sobra "excess" vertical de
+    // verdade pra recortar, e o mesmo valor fixo de telemóvel deixava a
+    // cabeça perto demais do topo.
     const IMG_HEAD_ROOM_MIN_PX = 249; // ≤768px de largura de caixa
-    const IMG_HEAD_ROOM_MAX_PX = 310; // ≥1365px de largura de caixa (calibrado para a foto anterior — não confirmado com a foto atual)
+    const IMG_HEAD_ROOM_MAX_PX = 310; // ≥1365px de largura de caixa
 
     // Ecrãs muito pequenos (largura <390px E altura <800px — ex. Galaxy
     // S8+, 360×740, e o iPhone SE, 375×667): com object-fit:cover o
     // "excess" vertical é 0 nesse formato de caixa (ver comentário em
     // targetObjectPositionY), tornando object-position inútil — nenhum
-    // valor resolve (confirmado 2026-09-13). Só aqui trocamos para
-    // object-fit:none — mostra a imagem no tamanho NATURAL (1440×2161px,
-    // sem escalar), o que cria sobra vertical de verdade, e ESSE
-    // object-position passa a funcionar de facto (ver updateImagePin,
-    // onde object-fit também é trocado). Recalibrado em 2026-09-14 (era
-    // 357, para a foto anterior) para bater com os ~32% pedidos no
-    // iPhone SE (375×667, caixa 375×595, já sem os 72px do header).
+    // valor resolve. Só aqui trocamos para object-fit:none — mostra a
+    // imagem no tamanho NATURAL (1440×2161px, sem escalar), o que cria
+    // sobra vertical de verdade, e ESSE object-position passa a
+    // funcionar de facto (ver updateImagePin, onde object-fit também é
+    // trocado).
     const IMG_HEAD_ROOM_NONE_PX = 305;
 
     function useNoneFit() {
@@ -1446,7 +1488,7 @@
         m.style.opacity = String(outOpacity);
       });
 
-      header.style.backgroundColor = `rgba(109, 33, 22, ${inP})`;
+      header.style.backgroundColor = `rgba(${HEADER_BG_RGB}, ${inP})`;
       header.style.borderBottomColor = `rgba(255, 255, 255, ${inP * 0.15})`;
       header.classList.toggle('is-interactive', inP > 0.5);
 
@@ -1615,6 +1657,7 @@
     initWorkScrub();
     initWorkCursor();
     initWorkPhotoToggle();
+    initWorkLinksInert();
     initFooterFocus();
 
     // positionFooterGlowOrigin também é chamada por applyLanguage (mais

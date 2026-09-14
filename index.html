@@ -6,11 +6,28 @@
   <title>Luana Gondim — Product &amp; UX/UI Designer</title>
   <meta name="description" content="Portfólio de Luana Gondim, Product &amp; UX/UI Designer. Desenho produtos digitais com o rigor de quem já desenhou edifícios.">
   <meta name="color-scheme" content="light">
+  <link rel="icon" href="favicon.ico">
 
   <!-- Open Graph -->
   <meta property="og:type" content="website">
   <meta property="og:title" content="Luana Gondim — Product & UX/UI Designer">
   <meta property="og:description" content="Portfólio de Luana Gondim, Product & UX/UI Designer.">
+  <!-- Três tamanhos do mesmo mark ("I'm LUA", ver Figma node 293:3223),
+       cada um com a sua própria largura/altura — crawlers de redes
+       diferentes escolhem o que preferem em vez de terem de escalar um
+       único ficheiro (LinkedIn/Facebook usam 1200×630; WhatsApp/
+       Telegram tendem a preferir o quadrado). -->
+  <meta property="og:image" content="assets/images/og/og-1200x630.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="630">
+  <meta property="og:image" content="assets/images/og/og-600x315.png">
+  <meta property="og:image:width" content="600">
+  <meta property="og:image:height" content="315">
+  <meta property="og:image" content="assets/images/og/og-1200x1200.png">
+  <meta property="og:image:width" content="1200">
+  <meta property="og:image:height" content="1200">
+  <meta name="twitter:card" content="summary_large_image">
+  <meta name="twitter:image" content="assets/images/og/og-1200x630.png">
 
   <link rel="preconnect" href="https://fonts.googleapis.com">
   <link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
@@ -97,7 +114,7 @@
               <p class="hero__tagline">Product &amp; UX/UI Designer</p>
               <a href="assets/cv-luana-gondim-pt.pdf" data-cv-pt="assets/cv-luana-gondim-pt.pdf" data-cv-en="assets/cv-luana-gondim-en.pdf" class="hero__resume" target="_blank" rel="noopener noreferrer" data-i18n="nav.curriculo">Currículo ↗</a>
             </div>
-            <nav class="hero__navlinks" aria-label="Navegação principal">
+            <nav class="hero__navlinks" aria-label="Navegação da hero">
               <a href="#sobre" id="navSobre" data-i18n="nav.sobre">Sobre</a>
               <a href="#trabalho" data-i18n="nav.trabalho">Trabalho</a>
               <a href="#contacto" data-i18n="nav.contacto">Contacto</a>
@@ -235,17 +252,14 @@
       </div>
     </section>
 
-    <!-- Selected Work — layout compacto conforme o Figma (243:12311):
-         coluna esquerda (título + texto de apoio + lista, largura fixa
-         900px) presa no ecrã enquanto se rola (mesmo padrão da Hero:
-         .work-pin-wrap dá altura extra, .work-layout fica sticky lá
-         dentro), coluna direita com a imagem do trabalho ativo a
-         ocupar o quadrante todo. Sem interação de cursor para definir
-         o item ativo — só a posição do scroll (ver initWorkScrub,
-         js/script.js). Quando um item está ativo, a linha inteira e a
-         imagem tornam-se um único link (ver initWorkCursor para o
-         cursor circular), com o botão de resultado conforme o Figma
-         245:12909. -->
+    <!-- Selected Work — layout do Figma (243:12311): coluna esquerda
+         (título + texto de apoio + lista) presa no ecrã enquanto se
+         rola (mesmo padrão da Hero: .work-pin-wrap dá altura extra,
+         .work-layout fica sticky), coluna direita com a imagem do
+         trabalho ativo. O item ativo é definido pela posição do
+         scroll, não pelo cursor (ver initWorkScrub, js/script.js);
+         quando ativo, a linha e a imagem tornam-se um único link (ver
+         initWorkCursor para o cursor circular). -->
     <section class="work" id="trabalho">
       <div class="work-pin-wrap">
         <div class="container work-layout">
@@ -257,7 +271,7 @@
 
             <ul class="work-list">
               <li class="work-item">
-                <a class="work-item__link" href="#">
+                <a class="work-item__link" href="#" aria-disabled="true" aria-label="Ver projeto: Paparico — Redesign da Landing Page (em breve)">
                   <span class="work-item__index" aria-hidden="true">01</span>
                   <div class="work-item__content">
                     <h3 data-i18n="work.items.0.title">Paparico — Redesign da Landing Page</h3>
@@ -280,7 +294,7 @@
               </li>
 
               <li class="work-item">
-                <a class="work-item__link" href="#">
+                <a class="work-item__link" href="#" aria-disabled="true" aria-label="Ver projeto: Paparico — Plataforma SaaS Interna (em breve)">
                   <span class="work-item__index" aria-hidden="true">02</span>
                   <div class="work-item__content">
                     <h3 data-i18n="work.items.1.title">Paparico — Plataforma SaaS Interna</h3>
@@ -301,7 +315,7 @@
               </li>
 
               <li class="work-item">
-                <a class="work-item__link" href="#">
+                <a class="work-item__link" href="#" aria-disabled="true" aria-label="Ver projeto: NOS — Repensar a Experiência de Compra de Pacotes (em breve)">
                   <span class="work-item__index" aria-hidden="true">03</span>
                   <div class="work-item__content">
                     <h3 data-i18n="work.items.2.title">NOS — Repensar a Experiência de Compra de Pacotes</h3>
@@ -317,12 +331,12 @@
                     <span class="metric__value" data-i18n="work.items.2.metric">Estudo de caso</span>
                     <span class="metric__link" data-i18n="work.viewProject">Ver projeto →</span>
                   </span>
-                  <span class="work-item__photo" aria-hidden="true"><img src="assets/images/projeto%20nos.png" loading="lazy" alt=""></span>
+                  <span class="work-item__photo" aria-hidden="true"><img src="assets/images/projeto-nos.png" loading="lazy" alt=""></span>
                 </a>
               </li>
 
               <li class="work-item">
-                <a class="work-item__link" href="#">
+                <a class="work-item__link" href="#" aria-disabled="true" aria-label="Ver projeto: Apoia+ — Redesenhar o Acesso aos Apoios Públicos (em breve)">
                   <span class="work-item__index" aria-hidden="true">04</span>
                   <div class="work-item__content">
                     <h3 data-i18n="work.items.3.title">Apoia+ — Redesenhar o Acesso aos Apoios Públicos</h3>
@@ -348,7 +362,7 @@
             <div class="work-preview" aria-hidden="true">
               <a class="work-preview__link" data-index="0" href="#" tabindex="-1"><img class="work-preview__img" src="assets/images/paparico.png" loading="lazy" alt=""></a>
               <a class="work-preview__link" data-index="1" href="#" tabindex="-1"><img class="work-preview__img" src="assets/images/saaspaparico.png" loading="lazy" alt=""></a>
-              <a class="work-preview__link" data-index="2" href="#" tabindex="-1"><img class="work-preview__img" src="assets/images/projeto%20nos.png" loading="lazy" alt=""></a>
+              <a class="work-preview__link" data-index="2" href="#" tabindex="-1"><img class="work-preview__img" src="assets/images/projeto-nos.png" loading="lazy" alt=""></a>
               <a class="work-preview__link" data-index="3" href="#" tabindex="-1"><img class="work-preview__img" src="assets/images/apoia.png" loading="lazy" alt=""></a>
             </div>
           </div>
@@ -401,21 +415,18 @@
   </main>
 
   <!-- Footer / Contact — uma mancha desfocada (.footer__glow) nasce
-       pequena, encostada ao fundo, e cresce até cobrir a secção toda
-       (branco → vinho sólido), com o texto a acompanhar (maroon/
-       "ignorar" a vermelho → branco) — sequência exata do Figma
-       (4 frames "Footer / Contact"), tocada ao longo de um pin no
-       scroll em vez de cortada em passos, mesmo padrão de
-       .hero-pin-wrap/.work-pin-wrap (a wrap ganha altura extra via
-       .is-pinned, o footer fica sticky lá dentro — ver
-       initFooterFocus, js/script.js) e mesma ideia de scroll-scrub
-       suave da secção "we keep our focus on important things" de
-       neutomni.com. Uma única custom property (--fp-color, 0→1)
-       controla a escala do glow e a cor do texto a cada frame — ver
-       .footer/.footer__glow, css/style.css. Sem esse pin (mobile ou
-       prefers-reduced-motion), o footer nasce direto no estado final
-       — só um fade simples de entrada (.footer__cta em .reveal, ver
-       initScrollReveal). -->
+       pequena, encostada ao fundo, e cresce com o scroll até cobrir a
+       secção toda (branco → vinho sólido), levando o texto consigo
+       ("ignorar" a vermelho → branco) — sequência do Figma (4 frames
+       "Footer / Contact"), suave em vez de cortada em passos, mesmo
+       padrão de pin de .hero-pin-wrap/.work-pin-wrap (a wrap ganha
+       altura extra via .is-pinned, o footer fica sticky lá dentro —
+       ver initFooterFocus, js/script.js). Uma única custom property
+       (--fp-color, 0→1) controla a escala do glow e a cor do texto a
+       cada frame — ver .footer/.footer__glow, css/style.css. Sem esse
+       pin (mobile ou prefers-reduced-motion), o footer nasce direto no
+       estado final — só um fade simples de entrada (.footer__cta em
+       .reveal, ver initScrollReveal). -->
   <div class="footer-pin-wrap">
     <footer class="footer" id="contacto">
       <div class="footer__glow" aria-hidden="true"></div>
@@ -434,8 +445,8 @@
         <div class="footer__bottom">
           <p class="footer__copy" data-i18n="footer.copyright">Luana Gondim — Product &amp; UX/UI Designer</p>
           <div class="footer__links">
-            <a href="#" data-i18n="footer.linkedin" target="_blank" rel="noopener noreferrer">LinkedIn</a>
-            <a href="#" data-i18n="footer.behance" target="_blank" rel="noopener noreferrer">Behance</a>
+            <a href="https://www.linkedin.com/in/gondimluana31" data-i18n="footer.linkedin" target="_blank" rel="noopener noreferrer">LinkedIn</a>
+            <a href="https://www.behance.net/luanaalmeida81" data-i18n="footer.behance" target="_blank" rel="noopener noreferrer">Behance</a>
             <span data-i18n="footer.location">Lisboa, Portugal</span>
           </div>
         </div>

@@ -101,13 +101,11 @@ button {
    initHeroScrollMorph/js/script.js — por isso a margem fluida dá
    lugar a valores fixos. Inclui a faixa iPad Air/Pro (FASE 1,
    769-1365px, ver bloco "Responsivo — iPad Air / iPad Pro"), que usa
-   o mesmo modelo mobile — gutter=40 fixo é parte desse modelo. iPad
-   Pro em paisagem (1366px de largura) ficou de fora de propósito
-   (2026-09-13): nesse tamanho o site passa a usar o desktop "de
-   verdade" (mesmo código de ≥1520px, incluindo a margem fluida — só o
-   Work continua no estilo mobile aí, ver o bloco "Responsivo —
-   Tablet", max-width:1519px — limiar movido de 1619px para 1519px em
-   2026-09-14, pedido). */
+   o mesmo modelo mobile — gutter=40 fixo é parte desse modelo. O iPad
+   Pro em paisagem (1366px de largura) fica de fora de propósito: nesse
+   tamanho o site usa o desktop "de verdade" (mesmo código de
+   ≥1520px, incluindo a margem fluida — só o Work continua no estilo
+   mobile aí, ver o bloco "Responsivo — Tablet", max-width:1519px). */
 @media (max-width: 1365px), (prefers-reduced-motion: reduce) {
   :root {
     --gutter: 40px;
@@ -1582,9 +1580,7 @@ button:focus-visible,
    avança à frente de --fp-color (que só troca a cor do texto mais
    tarde, ver .footer__heading etc.) para o texto nunca ficar a meio
    caminho sobre uma mancha ainda incompleta — sempre nítido, nunca
-   lavado. Mesma ideia de scroll-scrub suave da secção "we keep our
-   focus on important things" de neutomni.com, aplicada aqui a uma
-   forma em vez de a texto. */
+   lavado. */
 .footer__glow {
   position: absolute;
   z-index: 0;
@@ -1764,6 +1760,50 @@ button:focus-visible,
 }
 
 /* ==========================================================================
+   Responsivo — referência rápida de breakpoints
+
+   Os blocos "Responsivo — *" a partir daqui usam vários limiares
+   específicos, cada um resolvendo uma faixa/dispositivo concreto (ver
+   js/script.js para os mesmos limiares em JS — initHeroScrollMorph,
+   initMobileHeroMorph, initWorkScrub, initFooterFocus). Só uma lista
+   de consulta, nenhuma regra abaixo muda por causa disto:
+
+     ≤440px             telemóvel PORTRAIT — quebra forçada do nome da
+                         Hero (.hero__name-break-m), ver bloco no fim
+                         deste ficheiro.
+     ≤480px / ≤640px     ajustes finos de espaçamento dentro do bloco
+                         "Responsivo — Mobile" (gutter, tipografia).
+     ≤768px              "Responsivo — Mobile" — modelo mobile completo
+                         (sanduíche, Hero+Sobre com pin próprio via
+                         initMobileHeroMorph, Work em acordeão, Skills em
+                         carrossel, Timeline empilhada, Footer com pin).
+     769–899px           overrides pontuais de tablet retrato dentro do
+                         modelo mobile (ver "Responsivo — Intermediário"
+                         e "Responsivo — iPad Air / iPad Pro").
+     769–1365px          "Responsivo — iPad Air / iPad Pro" — FASE 1:
+                         reaproveita o MESMO modelo mobile acima (cópia
+                         deliberada, ver nota completa mais abaixo e
+                         [[mobile-only-scope]] na memória do projeto).
+     ≤1519px             "Responsivo — Tablet" (este bloco) — Selected
+                         Work sem scroll-scrub (initWorkScrub desligado,
+                         ver js/script.js), acordeão de foto por clique
+                         (initWorkPhotoToggle) cobrindo até aqui.
+     769–1519px          "Responsivo — Intermediário" — ajustes que só
+                         fazem sentido com as duas faixas anteriores
+                         sobrepostas (nem mobile puro, nem desktop).
+     ≥1366px             desktop "de verdade" — pin real da Hero
+                         (initHeroScrollMorph) liga a partir daqui
+                         (iPad Pro em paisagem incluído).
+     ≥1520px             Selected Work com scroll-scrub e cursor
+                         circular (initWorkScrub/initWorkCursor).
+
+   Mobile (≤768px) e desktop largo (≥1620px, fora desta lista por não
+   ter um bloco @media próprio — é só o layout fluido base) continuam
+   congelados fora de qualquer fase de trabalho em curso, ver memória
+   do projeto (mobile-only-scope).
+   ========================================================================== */
+
+/* ==========================================================================
    Responsivo — Tablet
    ========================================================================== */
 @media (max-width: 1519px) {
@@ -1832,8 +1872,7 @@ button:focus-visible,
    duplicado aqui, não partilhado: o bloco mobile fica congelado
    (max-width:768px, ver memória de escopo do projeto) e não deve ter o
    seu limiar alargado nem ser reaproveitado por um seletor mais amplo.
-   Limiar movido de 1619px para 1519px em 2026-09-14 (pedido) — o
-   desktop "de verdade" do Work passa a começar em 1520px, não 1620px.
+   O desktop "de verdade" do Work começa em 1520px.
    ========================================================================== */
 @media (min-width: 769px) and (max-width: 1519px) {
   .work-item__link {
@@ -1932,28 +1971,24 @@ button:focus-visible,
 }
 
 /* ==========================================================================
-   Responsivo — iPad Air / iPad Pro (769–1365px, retrato — ver nota)
+   Responsivo — iPad Air / iPad Pro (769–1365px)
 
-   FASE 1 do plano por janelas de tamanho (2026-09-11): esta faixa passa
-   a usar o MESMO modelo já aprovado do mobile (ver bloco "Responsivo —
-   Mobile" logo abaixo) — cabeçalho sanduíche, nome da Hero quebrado em
-   2 linhas, Sobre sobreposto à foto (.hero__about-m), Work com foto ao
-   clicar, Skills em carrossel, Timeline empilhada, Footer com pin e
-   mancha no estilo mobile. É uma cópia deliberada dos MESMOS valores
-   (não um redesenho) — ver [[mobile-only-scope]] na memória do
-   projeto: duplicado num bloco próprio, nunca alargando o
+   Esta faixa usa o MESMO modelo já aprovado do mobile (ver bloco
+   "Responsivo — Mobile" logo abaixo) — cabeçalho sanduíche, nome da
+   Hero quebrado em 2 linhas, Sobre sobreposto à foto (.hero__about-m),
+   Work com foto ao clicar, Skills em carrossel, Timeline empilhada,
+   Footer com pin e mancha no estilo mobile. É uma cópia deliberada dos
+   MESMOS valores (não um redesenho) — ver [[mobile-only-scope]] na
+   memória do projeto: duplicado num bloco próprio, nunca alargando o
    max-width:768px do bloco mobile em si (esse continua congelado,
    intocado). Qualquer edição futura nesta faixa deve espelhar a
    mudança equivalente no bloco mobile (ou vice-versa) manualmente —
    não há nada partilhado entre os dois de propósito.
 
-   NOTA 2026-09-13: originalmente ia até 1366px (retrato E paisagem do
-   iPad Pro), mas o iPad Pro em paisagem (1366px de largura) relatado
-   como "num limbo" — nem mobile nem desktop direito, sem as animações
-   do header/foto — foi tirado daqui de propósito e passa a usar o
-   desktop de verdade (≥1366px agora, ver .hero__about/canPin). Só
-   1365px pra baixo (que cobre o iPad Pro em RETRATO, 1024px, e o iPad
-   Air nos dois sentidos, 820/1180px) continua neste bloco.
+   Cobre só até 1365px (iPad Pro em RETRATO, 1024px, e o iPad Air nos
+   dois sentidos, 820/1180px) — a partir de 1366px, incluindo o iPad
+   Pro em PAISAGEM, o site já usa o desktop de verdade (ver
+   .hero__about/canPin).
 
    .hero__about (o "Sobre" do desktop, texto normal em vez de
    sobreposto à foto) é escondido aqui — só .hero__about-m aparece,
@@ -2671,13 +2706,11 @@ button:focus-visible,
     pointer-events: auto;
   }
 
-  /* display:flex explícito — sem isto, a regra pré-existente
-     ".site-header__navlinks{display:none}" (<=640px, pensada para o
-     tempo em que não havia painel nenhum para os links viverem lá
-     dentro) ganhava por ordem no ficheiro contra a base
-     "display:flex" (mesma especificidade, 1 classe); aqui o seletor
-     composto (2 classes) resolve isso sem tocar em nenhuma das duas
-     regras antigas. */
+  /* display:flex explícito — sem isto, a regra ".site-header__navlinks
+     {display:none}" (≤640px, para quando os links não têm painel para
+     viver lá dentro) ganhava por ordem no ficheiro contra a base
+     "display:flex" (mesma especificidade, 1 classe); o seletor
+     composto (2 classes) resolve isso sem tocar em nenhuma das duas. */
   .site-header__menu-m .site-header__navlinks {
     display: flex;
     flex-direction: column;
@@ -3213,18 +3246,17 @@ button:focus-visible,
 /* ==========================================================================
    Nome da Hero: breakline só em telemóvel portrait (441–1365px override)
 
-   Pedido 2026-09-13: ".hero__name-break-m" (o <br> forçado entre "HI,
-   I'm" e "LUANA") só deve aparecer em telemóvel PORTRAIT, max-width:
-   440px — nem em telemóvel paisagem (441-768px, dentro do bloco
-   mobile congelado) nem em tablet (769-1365px, bloco "Responsivo —
-   iPad Air / iPad Pro"), ambos com o nome numa linha só.
+   ".hero__name-break-m" (o <br> forçado entre "HI, I'm" e "LUANA") só
+   deve aparecer em telemóvel PORTRAIT, max-width: 440px — nem em
+   telemóvel paisagem (441-768px, dentro do bloco mobile congelado) nem
+   em tablet (769-1365px, bloco "Responsivo — iPad Air / iPad Pro"),
+   ambos com o nome numa linha só.
 
-   Limite superior 1365px, não 1366px: a partir de 1366px (iPad Pro
-   em paisagem, ver nota 2026-09-13 no bloco "Responsivo — iPad Air /
-   iPad Pro") o site já usa o desktop de verdade, cujo nome de uma
-   linha só vem do clamp base (.hero__name) + fitHeroName (JS,
-   initHeroScrollMorph) — este override não é mais necessário nem
-   deve interferir lá.
+   Limite superior 1365px, não 1366px: a partir de 1366px (iPad Pro em
+   paisagem) o site já usa o desktop de verdade, cujo nome de uma linha
+   só vem do clamp base (.hero__name) + fitHeroName (JS,
+   initHeroScrollMorph) — este override não é necessário nem deve
+   interferir lá.
 
    Em vez de editar o bloco mobile congelado (max-width:768px) ou o da
    Fase 1 (769-1365px) — nenhuma linha lá dentro é tocada, ver
