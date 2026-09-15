@@ -640,7 +640,8 @@
       updateProgress();
     });
 
-    // Os links "Sobre" apontam para dentro da própria Hero (a mesma
+    // Os links "Sobre" (nav e o logo "I'm LUA" do header, todos
+    // href="#sobre") apontam para dentro da própria Hero (a mesma
     // secção que .about__overlay sobrepõe, ver #sobre no HTML) — a
     // navegação nativa por âncora pousaria só no topo dela; aqui
     // calcula-se o ponto exato do percurso preso em que o texto já
@@ -1229,7 +1230,20 @@
     }
 
     toggle.addEventListener('click', () => {
+      // Pequeno "tap" de feedback no próprio botão, à parte da
+      // animação do ícone virando X (essa já existe via is-open-m,
+      // ver style.css) — classe reiniciada a cada clique (reflow
+      // forçado) para repetir a animação mesmo em cliques seguidos
+      // antes do fim da anterior; .is-tapped-m só existe dentro dos
+      // blocos mobile de style.css (nunca no desktop).
+      toggle.classList.remove('is-tapped-m');
+      void toggle.offsetWidth;
+      toggle.classList.add('is-tapped-m');
       setOpen(!menu.classList.contains('is-open-m'));
+    });
+
+    toggle.addEventListener('animationend', () => {
+      toggle.classList.remove('is-tapped-m');
     });
 
     // Fecha ao escolher um link (Trabalho/Sobre/Contacto) ou ao trocar
@@ -1614,19 +1628,23 @@
       updateProgress();
     });
 
-    // O link "Sobre" (Hero e o do painel do sanduíche, ambos
-    // href="#sobre") aponta para dentro da própria Hero — a navegação
-    // nativa por âncora pousaria só no topo dela (ou nem isso, o
-    // duplicado mobile não tem id="sobre" — ver index.html); aqui
-    // calcula-se o ponto exato do percurso preso em que a revelação
-    // (3 passos exclusivos, ver updateAboutReveal acima) já chegou ao
-    // último passo (os números/.about-m__stats) e rola-se até lá, em
-    // vez de parar no primeiro texto a meio da sequência.
+    // Os links "Sobre" (nav da Hero, painel do sanduíche e o logo
+    // "I'm LUA" do header, todos href="#sobre") apontam para dentro da
+    // própria Hero — a navegação nativa por âncora pousaria só no topo
+    // dela (ou nem isso, o duplicado mobile não tem id="sobre" — ver
+    // index.html); aqui calcula-se o ponto exato do percurso preso em
+    // que a revelação (3 passos exclusivos, ver updateAboutReveal
+    // acima) acaba de chegar ao PRIMEIRO passo (o texto "Durante oito
+    // anos...", .about-m__text--bottom) e rola-se até lá — é esse o
+    // primeiro texto a que o ecrã deve ficar visível ao entrar em
+    // "Sobre" no mobile, não o último (os números). +2px de folga
+    // garante scrolled > growRangePx mesmo com arredondamento, senão
+    // cai no ramo que ainda esconde tudo (ver updateAboutReveal).
     document.querySelectorAll('a[href="#sobre"]').forEach((a) => {
       a.addEventListener('click', (e) => {
         e.preventDefault();
         const wrapTop = wrap.getBoundingClientRect().top + window.scrollY;
-        window.scrollTo({ top: wrapTop + growRangePx + revealRangePx, behavior: 'smooth' });
+        window.scrollTo({ top: wrapTop + growRangePx + 2, behavior: 'smooth' });
       });
     });
 

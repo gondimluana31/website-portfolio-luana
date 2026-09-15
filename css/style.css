@@ -2158,6 +2158,24 @@ button:focus-visible,
     transform: rotate(-45deg);
   }
 
+  /* Pequeno "tap" de feedback no próprio botão ao clicar (JS,
+     initMobileMenu, adiciona/remove .is-tapped-m a cada clique) — à
+     parte da animação do ícone virando X acima, que já é suave mas só
+     mexe nos traços; isto dá um retorno tátil ao botão como um todo.
+     Encolhe mais (0.7, não 0.82) e ultrapassa o 1 no fim (1.12, um
+     "pop" pequeno) antes de assentar — mais percetível que um simples
+     down/up sem overshoot, mesmo ainda rápido/discreto. */
+  @keyframes menuToggleTapM {
+    0% { transform: scale(1); }
+    35% { transform: scale(0.7); }
+    65% { transform: scale(1.12); }
+    100% { transform: scale(1); }
+  }
+
+  .site-header__menu-toggle-m.is-tapped-m {
+    animation: menuToggleTapM 0.42s var(--ease);
+  }
+
   .site-header__menu-m {
     display: flex;
     flex-direction: column;
@@ -2677,6 +2695,26 @@ button:focus-visible,
   .site-header__menu-toggle-m.is-open-m .site-header__menu-icon-m::after {
     top: 0;
     transform: rotate(-45deg);
+  }
+
+  /* Pequeno "tap" de feedback no próprio botão ao clicar (JS,
+     initMobileMenu, adiciona/remove .is-tapped-m a cada clique) — à
+     parte da animação do ícone virando X acima, que já é suave mas só
+     mexe nos traços; isto dá um retorno tátil ao botão como um todo.
+     Encolhe mais (0.7, não 0.82) e ultrapassa o 1 no fim (1.12, um
+     "pop" pequeno) antes de assentar — mais percetível que um simples
+     down/up sem overshoot, mesmo ainda rápido/discreto.
+     Duplicado do mesmo @keyframes/regra da FASE 1 (769-1365px) acima,
+     isolado neste bloco (≤768px) como o resto do CSS "-m". */
+  @keyframes menuToggleTapM {
+    0% { transform: scale(1); }
+    35% { transform: scale(0.7); }
+    65% { transform: scale(1.12); }
+    100% { transform: scale(1); }
+  }
+
+  .site-header__menu-toggle-m.is-tapped-m {
+    animation: menuToggleTapM 0.42s var(--ease);
   }
 
   /* .site-header__menu-m deixa de ser display:contents (regra base) e
