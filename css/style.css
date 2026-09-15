@@ -1589,9 +1589,6 @@ button:focus-visible,
   width: 55%;
   max-width: 900px;
   aspect-ratio: 1;
-  border-radius: 50%;
-  background-color: var(--hero-bg);
-  filter: blur(70px);
   /* --footer-glow-scale por variável (não o "5.4" fixo) para o mobile
      poder aumentar só este número (ver @media max-width:768px) sem
      duplicar a fórmula toda — o círculo de partida é bem mais pequeno
@@ -1602,6 +1599,27 @@ button:focus-visible,
      nos cantos. */
   transform: translateX(-50%) scale(calc(var(--fp-glow, 1) * var(--footer-glow-scale, 5.4)));
   will-change: transform;
+}
+
+/* O blur vive num filho separado, nunca no mesmo elemento que o
+   transform:scale() (.footer__glow, acima) — no WebKit móvel (Safari
+   iOS), filter + transform na MESMA layer, dentro de um ancestral
+   overflow:hidden (.footer), tem um bug conhecido: a área desfocada
+   fica presa ao tamanho pré-transform, como se "parasse de crescer" a
+   meio da animação, enquanto o transform continua a escalar por baixo
+   sem efeito visível — é o que causava o círculo a ficar preso no
+   mobile (funcionava bem no desktop, onde o Chromium não tem este
+   bug). Ao separar as duas propriedades por elementos (pai escala,
+   filho desfoca), cada layer só tem uma das duas, e o WebKit deixa de
+   confundir os bounds. inset:0 cobre sempre o quadrado do pai (que já
+   é 1:1 por aspect-ratio), por isso o resultado visual é idêntico ao
+   de antes. */
+.footer__glow-fill {
+  position: absolute;
+  inset: 0;
+  border-radius: 50%;
+  background-color: var(--hero-bg);
+  filter: blur(70px);
 }
 
 .footer__cta {
